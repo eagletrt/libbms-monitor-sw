@@ -1,16 +1,16 @@
-/**
- * @file ltc6811.h
- * @brief This file contains the functions to communicate with the LTC6811-1 chip
+/*!
+ * \file ltc6811.h
+ * \brief This file contains the constants and data structure for the LTC6811 driver
  *
- * @attention For SPI communication with the LTC, mode 3 is required (in CubeMX is CPOL="Low" and CPHA="2 edge")
+ * \attention For SPI communication with the LTC, mode 3 is required (in CubeMX is CPOL="Low" and CPHA="2 edge")
  * and the MISO pin has to be set in Pull-Up mode (if it's not set on the hardware side)
  * Maximum SPI communication speed with the LTC is 1MHz
  * 
- * @details For additional information refer to the datasheet:
- * @link https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6811-1-6811-2.pdf
+ * \details For additional information refer to the datasheet:
+ * \link https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6811-1-6811-2.pdf
  *
- * @date 16 Dec 2023
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
+ * \date 16 Dec 2023
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
  */
 
 #ifndef LTC6811_H
@@ -38,74 +38,74 @@
 #define LTC6811_STCOMM_CYCLES 72
 
 
-/*** CELL VOLTAGE REGISTER ***/
+/*!* CELL VOLTAGE REGISTER ***/
 
 // Number of cells voltages contained in a single register (C[X]V)
 #define LTC6811_REG_CELL_COUNT 3
 // Total number of cells voltages contained in all registers (CV)
 #define LTC6811_CELL_COUNT (LTC6811_CVXR_COUNT * LTC6811_REG_CELL_COUNT)
 
-/*** AUXILIARY VOLTAGE REGISTER ***/
+/*!* AUXILIARY VOLTAGE REGISTER ***/
 
 // Number of auxiliary voltages contained in a single register (G[X]V)
 #define LTC6811_REG_AUX_COUNT 3
 // Total number of auxiliary voltages contained in all registers (GV)
 #define LTC6811_AUX_COUNT (LTC6811_AVXR_COUNT * LTC6811_REG_AUX_COUNT)
 
-/*** S PIN CONTROL REGISTER ***/
+/*!* S PIN CONTROL REGISTER ***/
 
 // Total number of S pin control values (SCTL[X])
 #define LTC6811_SCTL_COUNT 12
 
-/*** PWM REGISTER ***/
+/*!* PWM REGISTER ***/
 
 // Total number of PWM values (PWM[X])
 #define LTC6811_PWM_COUNT 12
 
-/*** COMM REGISTER ***/
+/*!* COMM REGISTER ***/
 
 // Maximum number of bytes that can be written or read from/to the COMM register (D[X])
 #define LTC6811_COMM_DATA_COUNT 3
 
-/**
- * @brief Get the maximum buffer size of an encoded write command in bytes
+/*!
+ * \brief Get the maximum buffer size of an encoded write command in bytes
  * 
- * @param COUNT The total number of LTCs to write to
- * @return size_t The maximum buffer size (Bytes)
+ * \param COUNT The total number of LTCs to write to
+ * \return size_t The maximum buffer size (Bytes)
  */
 #define LTC6811_WRITE_BUFFER_SIZE(COUNT) ((LTC6811_CMD_BYTE_COUNT) + (LTC6811_PEC_BYTE_COUNT) + ((LTC6811_REG_BYTE_COUNT) + (LTC6811_PEC_BYTE_COUNT)) * (COUNT))
-/**
- * @brief Get the maximum buffer size of an encoded read command in bytes
+/*!
+ * \brief Get the maximum buffer size of an encoded read command in bytes
  * 
- * @param COUNT The total number of LTCs to read from
- * @return size_t The maximum buffer size (Bytes)
+ * \param COUNT The total number of LTCs to read from
+ * \return size_t The maximum buffer size (Bytes)
  */
 #define LTC6811_READ_BUFFER_SIZE(COUNT) ((LTC6811_CMD_BYTE_COUNT) + (LTC6811_PEC_BYTE_COUNT))
-/**
- * @brief Get the maximum buffer size of the received data from the LTC in bytes
+/*!
+ * \brief Get the maximum buffer size of the received data from the LTC in bytes
  *
- * @param COUNT The total number of LTCs to read from
- * @return size_t The maximum buffer size (Bytes)
+ * \param COUNT The total number of LTCs to read from
+ * \return size_t The maximum buffer size (Bytes)
  */
 #define LTC6811_DATA_BUFFER_SIZE(COUNT) (((LTC6811_REG_BYTE_COUNT) + (LTC6811_PEC_BYTE_COUNT)) * COUNT)
-/**
- * @brief Get the maximum buffer size of an encoded poll command in bytes
+/*!
+ * \brief Get the maximum buffer size of an encoded poll command in bytes
  *
- * @param COUNT The total number of LTCs to poll from
- * @return The maximum buffer size (Bytes)
+ * \param COUNT The total number of LTCs to poll from
+ * \return The maximum buffer size (Bytes)
  */
 #define LTC6811_POLL_BUFFER_SIZE(COUNT) ((LTC6811_CMD_BYTE_COUNT) + (LTC6811_PEC_BYTE_COUNT))
-/**
- * @brief Get the maximum buffer size of an encoded 'STCOMM' command in bytes
+/*!
+ * \brief Get the maximum buffer size of an encoded 'STCOMM' command in bytes
  *
- * @param COUNT The total number of LTCs to poll from
- * @return The maximum buffer size (Bytes)
+ * \param COUNT The total number of LTCs to poll from
+ * \return The maximum buffer size (Bytes)
  */
 #define LTC6811_STCOMM_BUFFER_SIZE(COUNT) ((LTC6811_CMD_BYTE_COUNT) + (LTC6811_PEC_BYTE_COUNT) + (LTC6811_STCOMM_CYCLES))
 
-/**
- * @brief List of available commands for communication with the LTC6811
- * @details Each command maked with '*' is provided for forward-compatibility with LTC6813/6812
+/*!
+ * \brief List of available commands for communication with the LTC6811
+ * \details Each command maked with '*' is provided for forward-compatibility with LTC6813/6812
  */
 typedef enum {
     WRCFGA   = 0b00000000001,  // Write configuration register group A
@@ -154,12 +154,12 @@ typedef enum {
     STCOMM   = 0b11100100011   // Start I2C/SPI communication
 } Ltc6811Command;
 
-/** @brief Configuration register group */
+/*! \brief Configuration register group */
 typedef enum {
     LTC6811_CFGAR = 0,
     LTC6811_CFGXR_COUNT
 } Ltc6811Cfgxr;
-/** @brief Cell voltage register group */
+/*! \brief Cell voltage register group */
 typedef enum {
     LTC6811_CVAR = 0,
     LTC6811_CVBR,
@@ -167,32 +167,32 @@ typedef enum {
     LTC6811_CVDR,
     LTC6811_CVXR_COUNT
 } Ltc6811Cvxr;
-/** @brief Auxiliary voltage register group */
+/*! \brief Auxiliary voltage register group */
 typedef enum {
     LTC6811_AVAR = 0,
     LTC6811_AVBR,
     LTC6811_AVXR_COUNT
 } Ltc6811Avxr;
-/** @brief Status register group */
+/*! \brief Status register group */
 typedef enum {
     LTC6811_STAR = 0,
     LTC6811_STBR,
     LTC6811_STXR_COUNT
 } Ltc6811Stxr;
-/** @brief Communication register group */
+/*! \brief Communication register group */
 typedef enum {
     LTC6811_COMMA = 0,
     LTC6811_COMMX_COUNT
 } Ltc6811Commx;
-/** @brief PWM register group */
+/*! \brief PWM register group */
 typedef enum {
     LTC6811_PWMAR = 0,
     LTC6811_PWMXR_COUNT
 } Ltc6811Pwmxr;
 
-/**
- * @brief ADC conversion mode
- * @details Set the ADCOPT in the LTC configuration to:
+/*!
+ * \brief ADC conversion mode
+ * \details Set the ADCOPT in the LTC configuration to:
  *  0 -> selects modes 26Hz, 422Hz, 7kHz or 27kHz (default)
  *  1 -> selects modes 1kHz, 2kHz, 3kHz or 14kHz
  */
@@ -202,22 +202,22 @@ typedef enum {
     LTC6811_MD_7KHZ_3KHZ,
     LTC6811_MD_26HZ_2KHZ
 } Ltc6811Md;
-/** @brief Pull-Up/Pull-Down current for Open Wire conversions */
+/*! \brief Pull-Up/Pull-Down current for Open Wire conversions */
 typedef enum {
     LTC6811_PUP_INACTIVE = 0,
     LTC6811_PUP_ACTIVE
 } Ltc6811Pup;
-/** @brief Self test mode selection */
+/*! \brief Self test mode selection */
 typedef enum {
     LTC6811_ST_ONE = 1,
     LTC6811_ST_TWO
 } Ltc6811St;
-/** @brief Permit measurement during discharge */
+/*! \brief Permit measurement during discharge */
 typedef enum {
     LTC6811_DCP_DISABLED = 0,
     LTC6811_DCP_ENABLED
 } Ltc6811Dcp;
-/** @brief Cell selection for ADC conversion */
+/*! \brief Cell selection for ADC conversion */
 typedef enum {
     LTC6811_CH_ALL = 0,
     LTC6811_CH_1,
@@ -233,7 +233,7 @@ typedef enum {
     LTC6811_CH_11 = LTC6811_CH_5,
     LTC6811_CH_12 = LTC6811_CH_6
 } Ltc6811Ch;
-/** @brief GPIO selection for ADC conversion */
+/*! \brief GPIO selection for ADC conversion */
 typedef enum {
     LTC6811_CHG_GPIO_ALL = 0,
     LTC6811_CHG_GPIO_1,
@@ -243,7 +243,7 @@ typedef enum {
     LTC6811_CHG_GPIO_5,
     LTC6811_CHG_SECOND_REF
 } Ltc6811Chg;
-/** @brief Status group selection */
+/*! \brief Status group selection */
 typedef enum {
     LTC6811_CHST_ALL = 0,
     LTC6811_CHST_SC,
@@ -251,7 +251,7 @@ typedef enum {
     LTC6811_CHST_VA,
     LTC6811_CHST_VD
 } Ltc6811Chst;
-/** @brief Discharge timeout values in minutes */
+/*! \brief Discharge timeout values in minutes */
 typedef enum {
     LTC6811_DCTO_OFF = 0, // Discharge is disabled
     LTC6811_DCTO_30S,
@@ -271,43 +271,43 @@ typedef enum {
     LTC6811_DCTO_120MIN
 } Ltc6811Dcto;
 
-/** @brief I2C inital communication control bits on write */
+/*! \brief I2C inital communication control bits on write */
 typedef enum {
     LTC6811_I2C_WICOM_START = 0b0110, // Start signal that will be followed by data
     LTC6811_I2C_WICOM_STOP = 0b0001, // Stop signal
     LTC6811_I2C_WICOM_BLANK = 0b0000, // Proceed to data trasmission
     LTC6811_I2C_WICOM_NOTRANSMIT = 0b0111 // Release SDA and SCL and ignore the rest of data
 } Ltc6811I2cWicom;
-/** @brief I2C final communication control bits on write */
+/*! \brief I2C final communication control bits on write */
 typedef enum {
     LTC6811_I2C_WFCOM_ACK = 0b0000, // Generate an ACK signal on ninth clock cycle
     LTC6811_I2C_WFCOM_NACK = 0b1000, // Generate a NACK signal on ninth clock cycle
     LTC6811_I2C_WFCOM_STOP = 0b1001, // Generate a NACK signal followed by STOP signal
 } Ltc6811I2cWfcom;
-/** @brief SPI inital communication control bits on write */
+/*! \brief SPI inital communication control bits on write */
 typedef enum {
     LTC6811_SPI_WICOM_LOW = 0b1000, // Generate a CSBM low signal on SPI port
     LTC6811_SPI_WICOM_FALLING = 0b1010, // Drive CSBM high and then low
     LTC6811_SPI_WICOM_HIGH = 0b1001, // Generate a CSBM high signal on SPI port
     LTC6811_SPI_WICOM_NOTRANSMIT = 0b1111, // Release the SPI port and ignore the rest of the data
 } Ltc6811SpiWicom;
-/**
- * @brief SPI final communication control bits on write
- * @attention The low value can be either 0b0000 or 0b1000
+/*!
+ * \brief SPI final communication control bits on write
+ * \attention The low value can be either 0b0000 or 0b1000
  */
 typedef enum {
     LTC6811_SPI_WFCOM_LOW = 0b0000, // Holds CSBM low at the end of byte transmission
     LTC6811_SPI_WFCOM_LOW_B = 0b1000, // Holds CSBM low at the end of byte transmission
     LTC6811_SPI_WFCOM_HIGH = 0b1001 // Transitions CSBM high at the end of byte transmission
 } Ltc6811SpiWfcom;
-/** @brief I2C inital communication control bits on read */
+/*! \brief I2C inital communication control bits on read */
 typedef enum {
     LTC6811_I2C_RICOM_START = 0b0110, // Master generated a start signal
     LTC6811_I2C_RICOM_STOP = 0b0001, // Master generated a stop signal
     LTC6811_I2C_RICOM_BLANK = 0b0000, // SDA was held low between bytes
     LTC6811_I2C_RICOM_NOTRANSMIT = 0b0111 // SDA was held high between bytes
 } Ltc6811I2cRicom;
-/** @brief I2C final communication control bits on read */
+/*! \brief I2C final communication control bits on read */
 typedef enum {
     LTC6811_I2C_RFCOM_MACK = 0b0000, // Master generated an ACK signal
     LTC6811_I2C_RFCOM_SACK = 0b0111, // Slave generated an ACK signal
@@ -315,17 +315,17 @@ typedef enum {
     LTC6811_I2C_RFCOM_SACK_STOP = 0b0001, // Slave generated an ACK and master generated a STOP signal
     LTC6811_I2C_RFCOM_SNACK_STOP = 0b1001 // Slave generated a NACK and master generated a STOP signal
 } Ltc6811I2cRfcom;
-/** @brief SPI inital communication control bits on read */
+/*! \brief SPI inital communication control bits on read */
 typedef enum {
     LTC6811_SPI_RICOM = 0b0111
 } Ltc6811SpiRicom;
-/** @brief SPI final communication control bits on read */
+/*! \brief SPI final communication control bits on read */
 typedef enum {
     LTC6811_SPI_RFCOM = 0b1111
 } Ltc6811SpiRfcom;
 
 
-/** @brief Configuration register group structure */
+/*! \brief Configuration register group structure */
 typedef struct __attribute__((__packed__)) {
     uint8_t ADCOPT : 1; // ADC mode option bit
     uint8_t DTEN : 1;   // Discharge timer enable (READ ONLY)
@@ -336,7 +336,7 @@ typedef struct __attribute__((__packed__)) {
     uint16_t DCC : 12;  // Discharge cell x
     uint8_t DCTO : 4;   // Discharge time out value
 } Ltc6811Cfgr;
-/** @brief Status register group structure */
+/*! \brief Status register group structure */
 typedef struct __attribute__((__packed__)) {
     uint16_t SC;         // Sum of all cells measurement
     uint16_t ITMP;       // Internal die temperature
@@ -349,10 +349,10 @@ typedef struct __attribute__((__packed__)) {
     uint8_t MUXFAIL : 1; // Multiplexer self test result
     uint8_t THSD : 1;    // Thermal shutdown status
 } Ltc6811Str;
-/**
- * @brief External communication register group structure
+/*!
+ * \brief External communication register group structure
  *
- * @details The LTC6811 can be used as master for I2C and SPI communication through
+ * \details The LTC6811 can be used as master for I2C and SPI communication through
  * its GPIOs
  * For I2C:
  *  - GPIO4 is used as the Serial DAta(SDA)
@@ -362,7 +362,7 @@ typedef struct __attribute__((__packed__)) {
  *  - GPIO4 is used as the Serial Data Input-Output(SDIOM)
  *  - GPIO5 is used as the Serial Clock(SCKM)
  *
- * @attention For SPI only mode 3 (CHPA = 1, CPOL = 1) is supported
+ * \attention For SPI only mode 3 (CHPA = 1, CPOL = 1) is supported
  */
 typedef struct __attribute__((__packed__)) {
     uint8_t icom0 : 4; // Initial communication control bits of the first data byte
@@ -373,7 +373,7 @@ typedef struct __attribute__((__packed__)) {
     uint8_t fcom2 : 4; // Final communication control bits of the third data byte
     uint8_t data[LTC6811_COMM_DATA_COUNT];   // Data transmited (received) to (from) I2C/SPI slave device
 } Ltc6811Comm;
-/** @brief LTC6811 handler structure */
+/*! \brief LTC6811 handler structure */
 typedef struct {
     size_t count;
 } Ltc6811Chain;

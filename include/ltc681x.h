@@ -1,3 +1,11 @@
+/*!
+ * \file ltc681x-api.h
+ * \brief This file contains a layer of compatibility between the selected ltc681x driver and the library api
+ *
+ * \date 16 Dec 2023
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
+ */
+
 #ifndef LTC681X_H
 #define LTC681X_H
 

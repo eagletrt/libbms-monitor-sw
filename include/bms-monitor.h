@@ -1,9 +1,9 @@
-/**
- * @file bms-monitor.h
- * @brief 
+/*!
+ * \file bms-monitor.h
+ * \brief 
  *
- * @date 16 Dec 2023
- * @author Name Surname [your@email.here]
+ * \date 16 Dec 2023
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
  */
 
 #ifndef BMS_MONITOR_H

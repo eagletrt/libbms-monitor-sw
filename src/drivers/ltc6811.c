@@ -1,17 +1,17 @@
-/**
- * @file ltc681x.c
- * @brief This file contains the functions to communicate with the LTC681X chip
+/*!
+ * \file ltc6811.c
+ * \brief This file contains the functions to communicate with the LTC6811 chip
  * 
- * @attention In a daisy-chain configuration only broadcast commands are supported
+ * \attention In a daisy-chain configuration only broadcast commands are supported
  * For SPI communication with the LTC, mode 3 is required (in CubeMX is CPOL="Low" and CPHA="2 edge")
  * and the MISO pin has to be set in Pull-Up mode (if it's not set on the hardware side)
  * Maximum SPI communication speed with the LTC is 1MHz
  * 
- * @details For additional information refer to the datasheet:
- * @link https://www.analog.com/media/en/technical-documentation/data-sheets/ltc681x-1-6811-2.pdf
+ * \details For additional information refer to the datasheet:
+ * \link https://www.analog.com/media/en/technical-documentation/data-sheets/ltc681x-1-6811-2.pdf
  *
- * @date 16 Dec 2023
- * @author Antonio Gelain [antonio.gelain2@gmail.com]
+ * \date 16 Dec 2023
+ * \author Antonio Gelain [antonio.gelain2@gmail.com]
  */
 
 #define USE_LTC6811
@@ -19,7 +19,7 @@
 
 #include <string.h>
 
-/** @brief Table used to calculate the pec for messaging */
+/*! \brief Table used to calculate the pec for messaging */
 static const uint16_t crcTable[] = {
     0x0000, 0xc599, 0xceab, 0x0b32, 0xd8cf, 0x1d56, 0x1664, 0xd3fd,
     0xf407, 0x319e, 0x3aac, 0xff35, 0x2cc8, 0xe951, 0xe263, 0x27fa,
@@ -55,12 +55,12 @@ static const uint16_t crcTable[] = {
     0x5368, 0x96f1, 0x9dc3, 0x585a, 0x8ba7, 0x4e3e, 0x450c, 0x8095
 };
 
-/**
- * @brief Generate the Packet Error Code (PEC) from an array of bytes
+/*!
+ * \brief Generate the Packet Error Code (PEC) from an array of bytes
  * 
- * @param data The array of bytes
- * @param len The length of the array in bytes
- * @return uint16_t The calculated PEC
+ * \param data The array of bytes
+ * \param len The length of the array in bytes
+ * \return uint16_t The calculated PEC
  */
 static uint16_t _ltc681x_pec15(uint8_t * data, size_t len) {
     uint16_t remainder, address;
@@ -73,14 +73,14 @@ static uint16_t _ltc681x_pec15(uint8_t * data, size_t len) {
     // The CRC15 has a 0 in the LSB so the final value must be multiplied by 2
     return (remainder * 2);
 }
-/**
- * @brief Calculate and add pec to the 'data' array
- * @attention The array should be large enough to contains the 2 bytes PEC
+/*!
+ * \brief Calculate and add pec to the 'data' array
+ * \attention The array should be large enough to contains the 2 bytes PEC
  * 
- * @example data[8] => len = 6
+ * \example data[8] => len = 6
  * 
- * @param data The array of data
- * @param len The length of the data in bytes
+ * \param data The array of data
+ * \param len The length of the data in bytes
  */
 static inline void _ltc681x_pec_calc(uint8_t * data, size_t len) {
     uint16_t pec = _ltc681x_pec15(data, len);
@@ -88,100 +88,100 @@ static inline void _ltc681x_pec_calc(uint8_t * data, size_t len) {
     data[len + 1] = (uint8_t)(pec);
 }
 
-/**
- * @brief Check if the received PEC is correct 
+/*!
+ * \brief Check if the received PEC is correct 
  * 
- * @param data The array of data
- * @param len Length of the data array in bytes, PEC included
- * @return true If the received PEC and the calculated one corresponds
- * @return false Otherwise
+ * \param data The array of data
+ * \param len Length of the data array in bytes, PEC included
+ * \return true If the received PEC and the calculated one corresponds
+ * \return false Otherwise
  */
 static inline bool _ltc681x_pec_check(uint8_t * data, size_t len) {
     return _ltc681x_pec15(data, len - LTC681X_PEC_BYTE_COUNT) == (((uint16_t)data[len - 2] << 8) | (uint16_t)data[len - 1]);
 }
 
-/**
- * @brief Set the ADC conversion mode option inside the command
+/*!
+ * \brief Set the ADC conversion mode option inside the command
  *
- * @param cmd The command to modify
- * @param mode The ADC conversion mode
- * @return Ltc681xCommand The modified command
+ * \param cmd The command to modify
+ * \param mode The ADC conversion mode
+ * \return Ltc681xCommand The modified command
  */
 static inline Ltc681xCommand _ltc681x_cmd_set_md(Ltc681xCommand cmd, Ltc681xMd mode) {
     return cmd | (mode << 7);
 }
 
-/**
- * @brief Set the Pull-up/Pull-down current for open-wire conversion option inside the command
+/*!
+ * \brief Set the Pull-up/Pull-down current for open-wire conversion option inside the command
  *
- * @param cmd The command to modify
- * @param pup The Pull-up/Pull-down option
- * @return Ltc681xCommand The modified command
+ * \param cmd The command to modify
+ * \param pup The Pull-up/Pull-down option
+ * \return Ltc681xCommand The modified command
  */
 static inline Ltc681xCommand _ltc681x_cmd_set_pup(Ltc681xCommand cmd, Ltc681xPup pup) {
     return cmd | (pup << 6);
 }
-/**
- * @brief Set the self test mode option inside the command
+/*!
+ * \brief Set the self test mode option inside the command
  *
- * @param cmd The command to modify
- * @param mode The self test mode option
- * @return Ltc681xCommand The modified command
+ * \param cmd The command to modify
+ * \param mode The self test mode option
+ * \return Ltc681xCommand The modified command
  */
 static inline Ltc681xCommand _ltc681x_cmd_set_st(Ltc681xCommand cmd, Ltc681xSt mode) {
     return cmd | (mode << 5);
 }
-/**
- * @brief Set the dischare permitted option inside the command
+/*!
+ * \brief Set the dischare permitted option inside the command
  *
- * @param cmd The command to modify
- * @param dcp The discharge permitted option
- * @return Ltc681xCommand The modified command
+ * \param cmd The command to modify
+ * \param dcp The discharge permitted option
+ * \return Ltc681xCommand The modified command
  */
 static inline Ltc681xCommand _ltc681x_cmd_set_dcp(Ltc681xCommand cmd, Ltc681xDcp dcp) {
     return cmd | (dcp << 4);
 }
-/**
- * @brief Set the cell selection for ADC conversion inside the command
+/*!
+ * \brief Set the cell selection for ADC conversion inside the command
  *
- * @param cmd The command to modify
- * @param cells The selected cells
- * @return Ltc681xCommand The modified command
+ * \param cmd The command to modify
+ * \param cells The selected cells
+ * \return Ltc681xCommand The modified command
  */
 static inline Ltc681xCommand _ltc681x_cmd_set_ch(Ltc681xCommand cmd, Ltc681xCh cells) {
     return cmd | cells;
 }
-/**
- * @brief Set the GPIOs selection for ADC conversion inside the command
+/*!
+ * \brief Set the GPIOs selection for ADC conversion inside the command
  *
- * @param cmd The command to modify
- * @param gpios The selected GPIOs
- * @return Ltc681xCommand The modified command
+ * \param cmd The command to modify
+ * \param gpios The selected GPIOs
+ * \return Ltc681xCommand The modified command
  */
 static inline Ltc681xCommand _ltc681x_cmd_set_chg(Ltc681xCommand cmd, Ltc681xChg gpios) {
     return cmd | gpios;
 }
-/**
- * @brief Set the status group selection for ADC conversion inside the command
+/*!
+ * \brief Set the status group selection for ADC conversion inside the command
  *
- * @param cmd The command to modify
- * @param groups The selected status groups
- * @return Ltc681xCommand The modified command
+ * \param cmd The command to modify
+ * \param groups The selected status groups
+ * \return Ltc681xCommand The modified command
  */
 static inline Ltc681xCommand _ltc681x_cmd_set_chst(Ltc681xCommand cmd, Ltc681xChst groups) {
     return cmd | groups;
 }
 
-/**
- * @brief Save command and calculated pec in the 'buf' array
+/*!
+ * \brief Save command and calculated pec in the 'buf' array
  * 
- * @attention The 'buf' array has to be at least 4 bytes long,
+ * \attention The 'buf' array has to be at least 4 bytes long,
  * only the first 4 bytes of the array are modified
  * 
- * @param cmd The LTC681X command
- * @param is_address True if the address should be used, false if broadcast
- * @param address The address of the LTC681X
- * @param out The array where the command is written
+ * \param cmd The LTC681X command
+ * \param is_address True if the address should be used, false if broadcast
+ * \param address The address of the LTC681X
+ * \param out The array where the command is written
  */
 static inline void _ltc681x_cmd_encode(
     Ltc681xCommand cmd,
