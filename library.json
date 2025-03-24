@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
-  "name": "LibraryTemplate",
+  "name": "bms-monitor",
   "version": "1.0.0",
   "description": "Templates for libraries compatible with the PlatformIO ecosystem",
   "keywords": [
@@ -20,12 +20,17 @@
   "license": "AGPL-3.0-only",
   "frameworks": "*",
   "platforms": "*",
-  "headers": [],
+  "headers": [
+      "include/bms-monitor.h",
+      "include/ltc681x-api.h",
+      "include/ltc681x.h",
+      "include/drivers/ltc6811.h"
+  ],
   "examples": [],
   "export": {
     "include": [
       "src/**",
-      "include/**"
+      "include/**",
     ]
   }
 }
