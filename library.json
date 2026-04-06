@@ -1,36 +1,56 @@
 {
-  "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
-  "name": "bms-monitor",
-  "version": "1.0.0",
-  "description": "Templates for libraries compatible with the PlatformIO ecosystem",
-  "keywords": [
-    "template"
-  ],
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "authors": [
-    {
-      "name": "Antonio Gelain",
-      "email": "antonio.gelain2@gmail.com",
-      "maintainer": true
+    "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
+    "name": "BmsMonitor",
+    "version": "0.1.0",
+    "description": "",
+    "keywords": [
+        "bms-monitor",
+        "ltc6811-1",
+        "drivers",
+        "embedded"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/eagletrt/libbms-monitor-sw"
+    },
+    "authors": [
+        {
+            "name": "Antonio Gelain",
+            "email": "antonio.gelain2@gmail.com",
+            "maintainer": true
+        }
+    ],
+    "license": "AGPL-3.0-only",
+    "frameworks": "*",
+    "platforms": "*",
+    "dependencies": [
+        {
+            "name": "LibEagleTrt",
+            "version": "https://github.com/eagletrt/libeagletrt-sw.git#v0.1.0"
+        }
+    ],
+    "headers": [
+        "ltc6811-1.h",
+        "ltc6811-1-api.h"
+    ],
+    "examples": [
+        {
+            "name": "LTC6811-1 read and write configuration",
+            "src": "examples/ltc6811-1/read-write-configuration.c"
+        },
+        {
+            "name": "LTC6811-1 read all voltage registers from multiple ICs",
+            "src": "examples/ltc6811-1/read-voltages.c"
+        },
+        {
+            "name": "LTC6811-1 run Open-Wire check",
+            "src": "examples/ltc6811-1/open-wire-check.c"
+        }
+    ],
+    "export": {
+        "include": [
+            "src/**",
+            "include/**"
+        ]
     }
-  ],
-  "license": "AGPL-3.0-only",
-  "frameworks": "*",
-  "platforms": "*",
-  "headers": [
-      "include/bms-monitor.h",
-      "include/ltc681x-api.h",
-      "include/ltc681x.h",
-      "include/drivers/ltc6811.h"
-  ],
-  "examples": [],
-  "export": {
-    "include": [
-      "src/**",
-      "include/**",
-    ]
-  }
 }
