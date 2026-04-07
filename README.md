@@ -1,36 +1,23 @@
-# LIBSTM32-SW-TEMPLATE
+# BMS-MONITOR
 
-This repository serves as a template for libraries compatible with the
-[PlatformIO ecosystem](https://docs.platformio.org/en/latest/librarymanager/creating.html).
+This library contains all the functionality needed to communicate with a series
+of BMS monitor Integrated Circuits.
 
-## Usage
+The purpose of this library is to implement the drivers of each supported IC and
+to abstract them using a common interface to simplify development and maintainance
+of different BMS.
 
-Before starting to develop the library, a couple of things need to be done:
-1. Change this README explaining the library and the functionalities that it offers
-2. Modify the `library.json` including:
-    - The **name** of the library
-    - The library **version**
-    - The **description** explaining what the library does and for which devices
-    - The list of **keywords**
-    - The repository **url** (and type if necessary)
-    - The list of **authors**
-    - The supported **frameworks** and **platforms** (if needed)
-    - The list of **header files** of the library
-    - The list of **examples**
-    - The file of the library to **export** (if needed)
+> [!WARNING]
+> This library is still a work in progress as for now it only supports the LTC6811-1 (and not the LTC6811-2)
+> and it also does not implement the abstract interface yet.
 
-## Structure
+## Supported ICs
 
-The code of the library should be splitted in sources which must be placed inside
-the `src` folder and headers which must be placed inside the `include` folder.
+- [LTC6811-1](https://www.analog.com/media/en/technical-documentation/data-sheets/LTC6811-1-6811-2.pdf)
 
-Inside the `example` folder multiple source files should be placed to further
-explain how to use the library and how it works in different scenario.
+## General architecture
 
-The library must be tested with the maximum possible code coverage, the source
-code used to run the unit tests should be put inside the `test` folder.
-
-No other folders should be created besides the ones described before if not
-necessary, to handle complex file structures nested folders can be used.
-
-For more info check the READMEs inside the corresponding folders.
+For each IC its **driver** is implemented independently from the others by
+providing one or more of the following functionalities:
+1. **Encoding** functions: that encodes information into bytes which can be sent to the ICs
+2. **Decoding** functions: that decodes the bytes received from the ICs into useful information
