@@ -13,7 +13,7 @@ of different BMS.
 
 ## Supported ICs
 
-- [LTC6811-1](/docs/bms-monitor/assets/ltc6811-1-6811-2.pdf)
+- [LTC6811-1](https://www.analog.com/media/en/technical-documentation/data-sheets/LTC6811-1-6811-2.pdf)
 
 ## General architecture
 

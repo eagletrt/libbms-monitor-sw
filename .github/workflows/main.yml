@@ -4,6 +4,7 @@ on:
   push:
   pull_request:
     branches:
+      - master
       - dev
     types:
       - closed
@@ -11,7 +12,17 @@ on:
 jobs:
   test:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-on:
+      group: ci-runners
+      labels: Linux
+
+    strategy:
+      matrix:
+        examples: [
+          examples/ltc6811-1/open-wire-check.c,
+          examples/ltc6811-1/read-voltages.c,
+          examples/ltc6811-1/read-write-configuration.c
+        ]
 
     steps:
       - name: Checkout
@@ -36,18 +47,25 @@ jobs:
       - name: Run Unit Tests (or generate minimal .ini)
         run: |
           if [ ! -f "platformio.ini" ]; then
-            printf "[env:latest_stable]\nplatform = native\nlib_deps = Unity, ./\n" > platformio.ini
+            printf "[env:latest_stable]\n" > platformio.ini
+            printf "platform = native\n" >> platformio.ini
+            printf "lib_deps = Unity, ./\n" >> platformio.ini
+            printf "build_flags =\n" >> platformio.ini
+            printf "    -DEAGLETRT_STATIC=\n" >> platformio.ini
+            printf "    -DEAGLETRT_STATIC_INLINE=\n" >> platformio.ini
             echo "Created platformio.ini"
           fi
           pio test -e latest_stable
 
       - name: Run Example
         run: |
-          pio ci -l . --exclude=src/test --exclude=src/examples -O "framework=stm32cube" examples/simple-blink.c -b nucleo_h723zg
+          pio ci -l . --exclude=src/test --exclude=src/examples -O "framework=stm32cube" ${{ matrix.examples }} -b nucleo_f446re
 
   check:
     name: Static Code Analysis
-    runs-on: ubuntu-latest
+    runs-on:
+      group: ci-runners
+      labels: Linux
     # Run only when:
     #  - push to branch dev (e.g. merge commit pushed to dev), OR
     #  - pull_request event with action closed and merged == true targeting dev
@@ -78,7 +96,9 @@ jobs:
       - name: Run Static Code Analysis
         run: |
           if [ ! -f "platformio.ini" ]; then
-            printf "[env:latest_stable]\nplatform = native\nlib_deps = Unity, ./\n" > platformio.ini
+            printf "[env:latest_stable]\n" > platformio.ini
+            printf "platform = native\n" >> platformio.ini
+            printf "lib_deps = Unity, ./\n" >> platformio.ini
             echo "Created platformio.ini"
           fi
           pio check

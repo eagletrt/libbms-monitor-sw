@@ -427,7 +427,7 @@ enum Ltc68111SpiRfcom {
 /*!
  * \brief           Configuration register group structure
  */
-struct __attribute__((__packed__)) Ltc68111Cfgr {
+struct Ltc68111Cfgr {
     uint8_t ADCOPT : 1; /*!< ADC mode option bit */
     uint8_t DTEN : 1;   /*!< Discharge timer enable (READ ONLY) */
     uint8_t REFON : 1;  /*!< References powered up */
@@ -436,12 +436,12 @@ struct __attribute__((__packed__)) Ltc68111Cfgr {
     uint16_t VOV : 12;  /*!< Overvoltage comparison voltage */
     uint16_t DCC : 12;  /*!< Discharge cell x */
     uint8_t DCTO : 4;   /*!< Discharge time out value */
-};
+} __attribute__((__packed__));
 
 /*!
  * \brief           Status register group structure
  */
-struct __attribute__((__packed__)) Ltc68111Str {
+struct Ltc68111Str {
     uint16_t SC;         /*!< Sum of all cells measurement */
     uint16_t ITMP;       /*!< Internal die temperature */
     uint16_t VA;         /*!< Analog power supply voltage */
@@ -452,7 +452,7 @@ struct __attribute__((__packed__)) Ltc68111Str {
     uint8_t RSVD : 2;    /*!< Reserved bits (always 0s) */
     uint8_t MUXFAIL : 1; /*!< Multiplexer self test result */
     uint8_t THSD : 1;    /*!< Thermal shutdown status */
-};
+} __attribute__((__packed__));
 
 /*!
  * \brief           External communication register group structure
@@ -469,7 +469,7 @@ struct __attribute__((__packed__)) Ltc68111Str {
  *
  * \warning         For SPI only mode 3 (CHPA = 1, CPOL = 1) is supported
  */
-struct __attribute__((__packed__)) Ltc68111Comm {
+struct Ltc68111Comm {
     uint8_t icom0 : 4;                     /*!< Initial communication control bits of the first data byte */
     uint8_t icom1 : 4;                     /*!< Initial communication control bits of the second data byte */
     uint8_t icom2 : 4;                     /*!< Initial communication control bits of the third data byte */
@@ -477,7 +477,7 @@ struct __attribute__((__packed__)) Ltc68111Comm {
     uint8_t fcom1 : 4;                     /*!< Final communication control bits of the second data byte */
     uint8_t fcom2 : 4;                     /*!< Final communication control bits of the third data byte */
     uint8_t payload[LTC6811_1_COMM_COUNT]; /*!< Payload data transmited (received) to (from) I2C/SPI slave device */
-};
+} __attribute__((__packed__));
 
 /*!
  * \brief           LTC6811-1 handler structure

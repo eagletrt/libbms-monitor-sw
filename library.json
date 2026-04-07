@@ -52,5 +52,11 @@
             "src/**",
             "include/**"
         ]
+    },
+    "build": {
+        "flags": [
+            "-std=c23",
+            "-Iinclude/drivers/ltc6811-1"
+        ]
     }
 }
