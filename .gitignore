@@ -422,4 +422,6 @@ STM32Make.make
 ### DOXYGEN ###
 docs/
 
+platformio.ini
+
 ## ---------------- END MANUALLY ADDED ---------------- ##
