@@ -60,7 +60,7 @@ bool ltc6811_1_pladc_is_completed(const uint8_t byte);
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_WRITE_BUFFER_SIZE
  */
 size_t ltc6811_1_wrcfg_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     struct Ltc68111Cfgr *config,
     uint8_t *out);
 
@@ -76,7 +76,7 @@ size_t ltc6811_1_wrcfg_encode_broadcast(
  * \param[out]      out: The array where the encoded bytes are written
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_READ_BUFFER_SIZE
  */
-size_t ltc6811_1_rdcfg_encode_broadcast(struct Ltc68111Handler *handler, uint8_t *out);
+size_t ltc6811_1_rdcfg_encode_broadcast(const struct Ltc68111Handler *handler, uint8_t *out);
 
 /*!
  * \brief           Decode the ICs broadcast read command response payload into
@@ -91,7 +91,7 @@ size_t ltc6811_1_rdcfg_encode_broadcast(struct Ltc68111Handler *handler, uint8_t
  * \return          The number of decoded bytes (PEC included), should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdcfg_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     struct Ltc68111Cfgr *out);
 
@@ -109,7 +109,7 @@ size_t ltc6811_1_rdcfg_decode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_READ_BUFFER_SIZE
  */
 size_t ltc6811_1_rdcv_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Cvxr reg,
     uint8_t *out);
 
@@ -129,7 +129,7 @@ size_t ltc6811_1_rdcv_encode_broadcast(
  * \return          The number of decoded bytes (PEC included), should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdcv_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint16_t *out);
 
@@ -147,7 +147,7 @@ size_t ltc6811_1_rdcv_decode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_READ_BUFFER_SIZE
  */
 size_t ltc6811_1_rdaux_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Avxr reg,
     uint8_t *out);
 
@@ -166,7 +166,7 @@ size_t ltc6811_1_rdaux_encode_broadcast(
  * \return          The number of decoded bytes (PEC included), should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdaux_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint16_t *out);
 
@@ -184,7 +184,7 @@ size_t ltc6811_1_rdaux_decode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_READ_BUFFER_SIZE
  */
 size_t ltc6811_1_rdstat_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Stxr reg,
     uint8_t *out);
 
@@ -202,7 +202,7 @@ size_t ltc6811_1_rdstat_encode_broadcast(
  * \return          The number of decoded bytes (PEC included), should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdstat_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Stxr reg,
     uint8_t *payload,
     struct Ltc68111Str *out);
@@ -226,8 +226,8 @@ size_t ltc6811_1_rdstat_decode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_WRITE_BUFFER_SIZE
  */
 size_t ltc6811_1_wrsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const struct Ltc68111Handler *handler,
+    const uint8_t *payload,
     uint8_t *out);
 
 /*!
@@ -243,7 +243,7 @@ size_t ltc6811_1_wrsctrl_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -262,7 +262,7 @@ size_t ltc6811_1_rdsctrl_encode_broadcast(
  * \return          The number of decoded bytes (PEC included), should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdsctrl_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint8_t *out);
 
@@ -280,7 +280,7 @@ size_t ltc6811_1_rdsctrl_decode_broadcast(
  * \return          The number of encoded bytes, should be \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_stsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -296,7 +296,7 @@ size_t ltc6811_1_stsctrl_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_clrsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -317,8 +317,8 @@ size_t ltc6811_1_clrsctrl_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_WRITE_BUFFER_SIZE
  */
 size_t ltc6811_1_wrpwm_encode_broadcast(
-    struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const struct Ltc68111Handler *handler,
+    const uint8_t *payload,
     uint8_t *out);
 
 /*!
@@ -334,7 +334,7 @@ size_t ltc6811_1_wrpwm_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_READ_BUFFER_SIZE
  */
 size_t ltc6811_1_rdpwm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -353,7 +353,7 @@ size_t ltc6811_1_rdpwm_encode_broadcast(
  * \return          The number of decoded bytes (PEC included), should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdpwm_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint8_t *out);
 
@@ -374,7 +374,7 @@ size_t ltc6811_1_rdpwm_decode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adcv_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     enum Ltc68111Ch cells,
@@ -398,7 +398,7 @@ size_t ltc6811_1_adcv_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adow_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Pup pup,
     enum Ltc68111Dcp dcp,
@@ -421,7 +421,7 @@ size_t ltc6811_1_adow_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_cvst_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
     uint8_t *out);
@@ -442,7 +442,7 @@ size_t ltc6811_1_cvst_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adol_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     uint8_t *out);
@@ -463,7 +463,7 @@ size_t ltc6811_1_adol_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adax_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chg gpios,
     uint8_t *out);
@@ -484,7 +484,7 @@ size_t ltc6811_1_adax_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adaxd_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chg gpios,
     uint8_t *out);
@@ -505,7 +505,7 @@ size_t ltc6811_1_adaxd_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_axst_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
     uint8_t *out);
@@ -526,7 +526,7 @@ size_t ltc6811_1_axst_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adstat_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chst group,
     uint8_t *out);
@@ -547,7 +547,7 @@ size_t ltc6811_1_adstat_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adstatd_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chst groups,
     uint8_t *out);
@@ -568,7 +568,7 @@ size_t ltc6811_1_adstatd_encode_broadcast(
  * \return          The number of encoded bytes, should be equal \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_statst_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
     uint8_t *out);
@@ -589,7 +589,7 @@ size_t ltc6811_1_statst_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adcvax_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     uint8_t *out);
@@ -610,7 +610,7 @@ size_t ltc6811_1_adcvax_encode_broadcast(
  * \return          The number of encoded bytes, should be equal \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_adcvsc_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     uint8_t *out);
@@ -628,7 +628,7 @@ size_t ltc6811_1_adcvsc_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_clrcell_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -644,7 +644,7 @@ size_t ltc6811_1_clrcell_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_clraux_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -660,7 +660,7 @@ size_t ltc6811_1_clraux_encode_broadcast(
  * \return          The number of encoded bytes, should be equal \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_clrstat_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -684,7 +684,7 @@ size_t ltc6811_1_clrstat_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_pladc_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -700,7 +700,7 @@ size_t ltc6811_1_pladc_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_POLL_BUFFER_SIZE
  */
 size_t ltc6811_1_diagn_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -721,7 +721,7 @@ size_t ltc6811_1_diagn_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_WRITE_BUFFER_SIZE
  */
 size_t ltc6811_1_wrcomm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     struct Ltc68111Comm *comms,
     uint8_t *out);
 
@@ -739,7 +739,7 @@ size_t ltc6811_1_wrcomm_encode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_READ_BUFFER_SIZE
  */
 size_t ltc6811_1_rdcomm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 /*!
@@ -754,7 +754,7 @@ size_t ltc6811_1_rdcomm_encode_broadcast(
  * \return          The number of decoded bytes (PEC included), should be equal to \c LTC6811_1_DATA_BUFFER_SIZE
  */
 size_t ltc6811_1_rdcomm_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     struct Ltc68111Comm *out);
 
@@ -771,7 +771,7 @@ size_t ltc6811_1_rdcomm_decode_broadcast(
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_STCOMM_BUFFER_SIZE
  */
 size_t ltc6811_1_stcomm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out);
 
 #endif // LTC6811_1_API_H

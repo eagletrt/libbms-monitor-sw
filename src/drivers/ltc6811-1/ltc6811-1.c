@@ -72,12 +72,11 @@ EAGLETRT_STATIC const uint16_t crcTable[] = {
  * \param[in]       len: The length of the payload in bytes
  * \return          The calculated PEC
  */
-EAGLETRT_STATIC uint16_t prv_ltc6811_1_pec15(uint8_t *payload, size_t len) {
-    uint16_t remainder, address;
-    remainder = 16; // PEC seed
+EAGLETRT_STATIC uint16_t prv_ltc6811_1_pec15(const uint8_t *const payload, const size_t len) {
+    uint16_t remainder = 16; // PEC seed
     for (size_t i = 0; i < len; ++i) {
         // calculate PEC table address
-        address = ((remainder >> 7) ^ payload[i]) & 0xff;
+        uint16_t address = ((remainder >> 7) ^ payload[i]) & 0xff;
         remainder = (remainder << 8) ^ crcTable[address];
     }
     // The CRC15 has a 0 in the LSB so the final value must be multiplied by 2
@@ -226,7 +225,7 @@ bool ltc6811_1_pladc_is_completed(const uint8_t byte) {
 }
 
 size_t ltc6811_1_wrcfg_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     struct Ltc68111Cfgr *config,
     uint8_t *out) {
     if (handler == NULL || config == NULL || out == NULL)
@@ -251,14 +250,14 @@ size_t ltc6811_1_wrcfg_encode_broadcast(
     return encoded;
 }
 
-size_t ltc6811_1_rdcfg_encode_broadcast(struct Ltc68111Handler *handler, uint8_t *out) {
+size_t ltc6811_1_rdcfg_encode_broadcast(const struct Ltc68111Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
     return prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_RDCFGA, out);
 }
 
 size_t ltc6811_1_rdcfg_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     struct Ltc68111Cfgr *out) {
     if (handler == NULL || payload == NULL || out == NULL)
@@ -286,7 +285,7 @@ size_t ltc6811_1_rdcfg_decode_broadcast(
 }
 
 size_t ltc6811_1_rdcv_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Cvxr reg,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
@@ -314,7 +313,7 @@ size_t ltc6811_1_rdcv_encode_broadcast(
 }
 
 size_t ltc6811_1_rdcv_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint16_t *out) {
     if (handler == NULL || payload == NULL || out == NULL)
@@ -337,7 +336,7 @@ size_t ltc6811_1_rdcv_decode_broadcast(
 }
 
 size_t ltc6811_1_rdaux_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Avxr reg,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
@@ -359,7 +358,7 @@ size_t ltc6811_1_rdaux_encode_broadcast(
 }
 
 size_t ltc6811_1_rdaux_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint16_t *out) {
     if (handler == NULL || payload == NULL || out == NULL)
@@ -382,7 +381,7 @@ size_t ltc6811_1_rdaux_decode_broadcast(
 }
 
 size_t ltc6811_1_rdstat_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Stxr reg,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
@@ -404,7 +403,7 @@ size_t ltc6811_1_rdstat_encode_broadcast(
 }
 
 size_t ltc6811_1_rdstat_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Stxr reg,
     uint8_t *payload,
     struct Ltc68111Str *out) {
@@ -449,8 +448,8 @@ size_t ltc6811_1_rdstat_decode_broadcast(
 }
 
 size_t ltc6811_1_wrsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const struct Ltc68111Handler *handler,
+    const uint8_t *payload,
     uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL)
         return 0U;
@@ -471,7 +470,7 @@ size_t ltc6811_1_wrsctrl_encode_broadcast(
 }
 
 size_t ltc6811_1_rdsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -480,7 +479,7 @@ size_t ltc6811_1_rdsctrl_encode_broadcast(
 }
 
 size_t ltc6811_1_rdsctrl_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL)
@@ -505,7 +504,7 @@ size_t ltc6811_1_rdsctrl_decode_broadcast(
 }
 
 size_t ltc6811_1_stsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -514,7 +513,7 @@ size_t ltc6811_1_stsctrl_encode_broadcast(
 }
 
 size_t ltc6811_1_clrsctrl_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -523,8 +522,8 @@ size_t ltc6811_1_clrsctrl_encode_broadcast(
 }
 
 size_t ltc6811_1_wrpwm_encode_broadcast(
-    struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const struct Ltc68111Handler *handler,
+    const uint8_t *payload,
     uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL)
         return 0U;
@@ -545,7 +544,7 @@ size_t ltc6811_1_wrpwm_encode_broadcast(
 }
 
 size_t ltc6811_1_rdpwm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -554,7 +553,7 @@ size_t ltc6811_1_rdpwm_encode_broadcast(
 }
 
 size_t ltc6811_1_rdpwm_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL)
@@ -578,7 +577,7 @@ size_t ltc6811_1_rdpwm_decode_broadcast(
 }
 
 size_t ltc6811_1_adcv_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     enum Ltc68111Ch cells,
@@ -594,7 +593,7 @@ size_t ltc6811_1_adcv_encode_broadcast(
 }
 
 size_t ltc6811_1_adow_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Pup pup,
     enum Ltc68111Dcp dcp,
@@ -612,7 +611,7 @@ size_t ltc6811_1_adow_encode_broadcast(
 }
 
 size_t ltc6811_1_cvst_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
     uint8_t *out) {
@@ -626,7 +625,7 @@ size_t ltc6811_1_cvst_encode_broadcast(
 }
 
 size_t ltc6811_1_adol_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     uint8_t *out) {
@@ -640,7 +639,7 @@ size_t ltc6811_1_adol_encode_broadcast(
 }
 
 size_t ltc6811_1_adax_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chg gpios,
     uint8_t *out) {
@@ -654,7 +653,7 @@ size_t ltc6811_1_adax_encode_broadcast(
 }
 
 size_t ltc6811_1_adaxd_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chg gpios,
     uint8_t *out) {
@@ -668,7 +667,7 @@ size_t ltc6811_1_adaxd_encode_broadcast(
 }
 
 size_t ltc6811_1_axst_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
     uint8_t *out) {
@@ -682,7 +681,7 @@ size_t ltc6811_1_axst_encode_broadcast(
 }
 
 size_t ltc6811_1_adstat_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chst groups,
     uint8_t *out) {
@@ -696,7 +695,7 @@ size_t ltc6811_1_adstat_encode_broadcast(
 }
 
 size_t ltc6811_1_adstatd_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chst groups,
     uint8_t *out) {
@@ -710,7 +709,7 @@ size_t ltc6811_1_adstatd_encode_broadcast(
 }
 
 size_t ltc6811_1_statst_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
     uint8_t *out) {
@@ -724,7 +723,7 @@ size_t ltc6811_1_statst_encode_broadcast(
 }
 
 size_t ltc6811_1_adcvax_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     uint8_t *out) {
@@ -738,7 +737,7 @@ size_t ltc6811_1_adcvax_encode_broadcast(
 }
 
 size_t ltc6811_1_adcvsc_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
     uint8_t *out) {
@@ -752,7 +751,7 @@ size_t ltc6811_1_adcvsc_encode_broadcast(
 }
 
 size_t ltc6811_1_clrcell_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -762,7 +761,7 @@ size_t ltc6811_1_clrcell_encode_broadcast(
 }
 
 size_t ltc6811_1_clraux_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -772,7 +771,7 @@ size_t ltc6811_1_clraux_encode_broadcast(
 }
 
 size_t ltc6811_1_clrstat_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -782,7 +781,7 @@ size_t ltc6811_1_clrstat_encode_broadcast(
 }
 
 size_t ltc6811_1_pladc_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -792,7 +791,7 @@ size_t ltc6811_1_pladc_encode_broadcast(
 }
 
 size_t ltc6811_1_diagn_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -802,7 +801,7 @@ size_t ltc6811_1_diagn_encode_broadcast(
 }
 
 size_t ltc6811_1_wrcomm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     struct Ltc68111Comm *comms,
     uint8_t *out) {
     if (handler == NULL || comms == NULL || out == NULL)
@@ -827,7 +826,7 @@ size_t ltc6811_1_wrcomm_encode_broadcast(
 }
 
 size_t ltc6811_1_rdcomm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
@@ -837,7 +836,7 @@ size_t ltc6811_1_rdcomm_encode_broadcast(
 }
 
 size_t ltc6811_1_rdcomm_decode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *payload,
     struct Ltc68111Comm *out) {
     if (handler == NULL || payload == NULL || out == NULL)
@@ -868,7 +867,7 @@ size_t ltc6811_1_rdcomm_decode_broadcast(
 }
 
 size_t ltc6811_1_stcomm_encode_broadcast(
-    struct Ltc68111Handler *handler,
+    const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL)
         return 0U;
