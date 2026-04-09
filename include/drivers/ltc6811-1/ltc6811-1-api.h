@@ -72,7 +72,7 @@ size_t ltc6811_1_wrcfg_encode_broadcast(
  *                  Use the \c LTC6811_1_READ_BUFFER_SIZE macro to get the
  *                  correct size for the buffer
  *
- * \param[in]       chain: The IC handler structure
+ * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
  * \return          The number of encoded bytes, should be equal to \c LTC6811_1_READ_BUFFER_SIZE
  */
