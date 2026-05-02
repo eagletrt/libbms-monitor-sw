@@ -92,7 +92,7 @@ size_t ltc6811_1_rdcfg_encode_broadcast(const struct Ltc68111Handler *handler, u
  */
 size_t ltc6811_1_rdcfg_decode_broadcast(
     const struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const uint8_t *payload,
     struct Ltc68111Cfgr *out);
 
 /*!
@@ -130,7 +130,7 @@ size_t ltc6811_1_rdcv_encode_broadcast(
  */
 size_t ltc6811_1_rdcv_decode_broadcast(
     const struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const uint8_t *payload,
     uint16_t *out);
 
 /*!
@@ -167,7 +167,7 @@ size_t ltc6811_1_rdaux_encode_broadcast(
  */
 size_t ltc6811_1_rdaux_decode_broadcast(
     const struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const uint8_t *payload,
     uint16_t *out);
 
 /*!
@@ -204,7 +204,7 @@ size_t ltc6811_1_rdstat_encode_broadcast(
 size_t ltc6811_1_rdstat_decode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Stxr reg,
-    uint8_t *payload,
+    const uint8_t *payload,
     struct Ltc68111Str *out);
 
 /*!
@@ -263,7 +263,7 @@ size_t ltc6811_1_rdsctrl_encode_broadcast(
  */
 size_t ltc6811_1_rdsctrl_decode_broadcast(
     const struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const uint8_t *payload,
     uint8_t *out);
 
 /*!
@@ -354,7 +354,7 @@ size_t ltc6811_1_rdpwm_encode_broadcast(
  */
 size_t ltc6811_1_rdpwm_decode_broadcast(
     const struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const uint8_t *payload,
     uint8_t *out);
 
 /*!
@@ -755,7 +755,7 @@ size_t ltc6811_1_rdcomm_encode_broadcast(
  */
 size_t ltc6811_1_rdcomm_decode_broadcast(
     const struct Ltc68111Handler *handler,
-    uint8_t *payload,
+    const uint8_t *payload,
     struct Ltc68111Comm *out);
 
 /*!

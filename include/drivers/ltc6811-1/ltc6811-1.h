@@ -32,6 +32,8 @@
 
 #define LTC6811_1_STCOMM_CYCLES (72U) /*!< Required number of clock cycles for an STCOMM command completion */
 
+#define LTC6811_1_PLADC_COMPLETE_BYTE_VALUE (0xFF)
+
 /*!
  * \defgroup ltc6811_1_cell_voltage_registers Cell voltage registers definitions
  * @{
@@ -106,7 +108,7 @@
  * \param[in]       COUNT: The total number of ICs in the chain
  * \return          The buffer size in bytes
  */
-#define LTC6811_1_DATA_BUFFER_SIZE(COUNT) (((LTC6811_1_REG_BYTE_COUNT) + (LTC6811_1_PEC_BYTE_COUNT)) * COUNT)
+#define LTC6811_1_DATA_BUFFER_SIZE(COUNT) (((LTC6811_1_REG_BYTE_COUNT) + (LTC6811_1_PEC_BYTE_COUNT)) * (COUNT))
 
 /*!
  * \brief           Get the buffer size of an encoded poll command in bytes
