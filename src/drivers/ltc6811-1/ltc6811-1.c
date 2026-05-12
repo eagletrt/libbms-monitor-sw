@@ -110,7 +110,7 @@ EAGLETRT_STATIC_INLINE size_t prv_ltc6811_1_pec_calc(uint8_t *payload, size_t le
  * \param[in]       len: Length of the payload in bytes, PEC included
  * \return          True if the given and calculated PEC match, false otherwise
  */
-EAGLETRT_STATIC_INLINE bool prv_ltc6811_1_pec_is_correct(uint8_t *payload, size_t len) {
+EAGLETRT_STATIC_INLINE bool prv_ltc6811_1_pec_is_correct(const uint8_t *payload, size_t len) {
     const uint8_t pec_offset_high = 8U;
     uint16_t pec = ((uint16_t)payload[len - 2] << pec_offset_high) | (uint16_t)payload[len - 1];
     return prv_ltc6811_1_pec15(payload, len - LTC6811_1_PEC_BYTE_COUNT) == pec;
