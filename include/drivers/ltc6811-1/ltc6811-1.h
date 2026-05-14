@@ -32,7 +32,9 @@
 
 #define LTC6811_1_STCOMM_CYCLES (72U) /*!< Required number of clock cycles for an STCOMM command completion */
 
-#define LTC6811_1_PLADC_COMPLETE_BYTE_VALUE (0xFF)
+#define LTC6811_1_PLADC_COMPLETE_BYTE_VALUE (0xFF) /*!< Byte returned by the LTC6811-1 whenever the ADC conversion is completed */
+
+#define LTC6811_1_OPEN_WIRE_THRESHOLD_V (-0.4F) /*!< Byte returned by the LTC6811-1 whenever the ADC conversion is completed */
 
 /*!
  * \defgroup ltc6811_1_cell_voltage_registers Cell voltage registers definitions
