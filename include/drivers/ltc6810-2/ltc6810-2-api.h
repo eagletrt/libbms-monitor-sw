@@ -19,6 +19,16 @@
 #include "ltc6810-2.h"
 
 /*!
+ * \brief           Extract cell x (1..6) undervoltage flag from Ltc68102Str.cell_flags
+ */
+#define LTC6810_2_API_STR_CUV(str, x) (((str).cell_flags >> (2U * ((x) - 1U))) & 0x1U)
+/*!
+ * \brief           Extract cell x (1..6) overvoltage flag from Ltc68102Str.cell_flags
+ */
+#define LTC6810_2_API_STR_COV(str, x) (((str).cell_flags >> (2U * ((x) - 1U) + 1U)) & 0x1U)
+
+
+/*!
  * \brief           Initialize the IC handler structure
  *
  * \param[in]       handler: The IC handler structure
