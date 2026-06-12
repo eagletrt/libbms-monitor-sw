@@ -21,8 +21,8 @@
 #define LTC6810_2_PEC_BYTE_COUNT (2U)  /*!< Number of bytes of the PEC */
 #define LTC6810_2_POLL_BYTE_COUNT (1U) /*!< Number of bytes of a single poll response */
 
-#define LTC6810_2_T_IDLE_MS (5U)     /*!< Time required for the isoSPI port to go to the IDLE state in ms */
-#define LTC6810_2_T_SLEEP_MS (2000U) /*!< Time required for the LTC6811 to go the SLEEP state in ms */
+#define LTC6810_2_T_IDLE_MS (6U)     /*!< Time required for the isoSPI port to go to the IDLE state in ms */
+#define LTC6810_2_T_SLEEP_MS (2000U) /*!< Time required for the LTC6810 to go the SLEEP state in ms */
 
 #define LTC6810_2_STCOMM_CYCLES (72U) /*!< Required number of clock cycles for an STCOMM command completion */
 
@@ -53,7 +53,7 @@
  * @{
  */
 
-#define LTC6810_2_REG_SCTRL_COUNT (12U)                                            /*!< Number of S pin control values in a single register (SCTRL[X]) */
+#define LTC6810_2_REG_SCTRL_COUNT (6U)                                             /*!< Number of S pin control values in a single register (SCTRL[X]) */
 #define LTC6810_2_SCTRL_COUNT (LTC6810_2_REG_SCTRL_COUNT * LTC6810_2_SCTRLX_COUNT) /*!< Number of S pin control values in all registers (SCTRL) */
 
 /*! @} */
@@ -63,7 +63,7 @@
  * @{
  */
 
-#define LTC6810_2_REG_PWM_COUNT (12U)                                         /*!< Number of PWM values in a single register (PWM[X]) */
+#define LTC6810_2_REG_PWM_COUNT (6U)                                          /*!< Number of PWM values in a single register (PWM[X]) */
 #define LTC6810_2_PWM_COUNT (LTC6810_2_REG_PWM_COUNT * LTC6810_2_PWMXR_COUNT) /*!< Number of PWM values in all registers (PWM) */
 
 /*! @} */
@@ -119,54 +119,71 @@
 
 /*!
  * \brief           List of available commands for communication with the LTC6810-2
- *
- * \details         Each command maked with (*) is provided for forward-compatibility with LTC6813/6812
  */
 enum Ltc68102Command {
-    LTC6810_2_CMD_WRCFGA = 0b00000000001,   /*!<     Write configuration register group A */
-    LTC6810_2_CMD_WRCFGB = 0b00000100100,   /*!< (*) Write configuration register group B */
-    LTC6810_2_CMD_RDCFGA = 0b00000000010,   /*!<     Read configuration register group A */
-    LTC6810_2_CMD_RDCFGB = 0b00000100110,   /*!< (*) Read configuration register group B */
-    LTC6810_2_CMD_RDCVA = 0b00000000100,    /*!<     Read cell voltage register group A */
-    LTC6810_2_CMD_RDCVB = 0b00000000110,    /*!<     Read cell voltage register group B */
-    LTC6810_2_CMD_RDCVC = 0b00000001000,    /*!<     Read cell voltage register group C */
-    LTC6810_2_CMD_RDCVD = 0b00000001010,    /*!<     Read cell voltage register group D */
-    LTC6810_2_CMD_RDCVE = 0b00000001001,    /*!< (*) Read cell voltage register group E */
-    LTC6810_2_CMD_RDCVF = 0b00000001011,    /*!< (*) Read cell voltage register group F */
-    LTC6810_2_CMD_RDAUXA = 0b00000001100,   /*!<     Read auxiliary register group A */
-    LTC6810_2_CMD_RDAUXB = 0b00000001110,   /*!<     Read auxiliary register group B */
-    LTC6810_2_CMD_RDAUXC = 0b00000001101,   /*!< (*) Read auxiliary register group C */
-    LTC6810_2_CMD_RDAUXD = 0b00000001111,   /*!< (*) Read auxiliary register group D */
-    LTC6810_2_CMD_RDSTATA = 0b00000010000,  /*!<     Read status register group A */
-    LTC6810_2_CMD_RDSTATB = 0b00000010010,  /*!<     Read status register group B */
-    LTC6810_2_CMD_WRSCTRL = 0b00000010100,  /*!<     Write S control register group */
-    LTC6810_2_CMD_WRPWM = 0b00000100000,    /*!<     Write PWM register group */
-    LTC6810_2_CMD_WRPSB = 0b00000011100,    /*!< (*) Write PWM/S control register group B */
-    LTC6810_2_CMD_RDSCTRL = 0b00000010110,  /*!<     Read S control register group */
-    LTC6810_2_CMD_RDPWM = 0b00000100010,    /*!<     Read PWM register group */
-    LTC6810_2_CMD_RDPSB = 0b00000011110,    /*!< (*) Read PWM/S control register group B */
-    LTC6810_2_CMD_STSCTRL = 0b00000011001,  /*!<     Start S control pulsing and poll status */
-    LTC6810_2_CMD_CLRSCTRL = 0b00000011000, /*!<     Clear S control register group */
-    LTC6810_2_CMD_ADCV = 0b01001100000,     /*!<     Start cell voltage ADC conversion and poll status */
-    LTC6810_2_CMD_ADOW = 0b01000101000,     /*!<     Start open wire ADC conversion and poll status */
-    LTC6810_2_CMD_CVST = 0b01000000111,     /*!<     Start self test cell voltage conversion and poll status */
-    LTC6810_2_CMD_ADOL = 0b01000000001,     /*!<     Start overlap measurement of cell 7 voltage */
-    LTC6810_2_CMD_ADAX = 0b10001100000,     /*!<     Start GPIOs ADC conversion and poll status */
-    LTC6810_2_CMD_ADAXD = 0b10000000000,    /*!<     Start GPIOs ADC with digital redundancy and poll status */
-    LTC6810_2_CMD_AXST = 0b10000000111,     /*!<     Start self test GPIOs conversion and poll status */
-    LTC6810_2_CMD_ADSTAT = 0b10001101000,   /*!<     Start status group ADC conversion and poll status */
-    LTC6810_2_CMD_ADSTATD = 0b10000001000,  /*!<     Start status group ADC conversion with digital redundancy and poll status */
-    LTC6810_2_CMD_STATST = 0b10000001111,   /*!<     Start self test status group conversion and poll status */
-    LTC6810_2_CMD_ADCVAX = 0b10001101111,   /*!<     Start combined cell voltage and GPIO1, GPIO2 conversion and poll status */
-    LTC6810_2_CMD_ADCVSC = 0b10001100111,   /*!<     Start combined cell voltage and SC conversion and poll status */
-    LTC6810_2_CMD_CLRCELL = 0b11100010001,  /*!<     Clear cell voltage register groups */
-    LTC6810_2_CMD_CLRAUX = 0b11100010010,   /*!<     Clear auxiliary register groups */
-    LTC6810_2_CMD_CLRSTAT = 0b11100010011,  /*!<     Clear status register groups */
-    LTC6810_2_CMD_PLADC = 0b11100010100,    /*!<     Poll ADC conversion status */
-    LTC6810_2_CMD_DIAGN = 0b11100010101,    /*!<     Diagnose MUX and poll status */
-    LTC6810_2_CMD_WRCOMM = 0b11100100001,   /*!<     Write COMM register group */
-    LTC6810_2_CMD_RDCOMM = 0b11100100010,   /*!<     Read COMM register group */
-    LTC6810_2_CMD_STCOMM = 0b11100100011    /*!<     Start I2C/SPI communication */
+    /*! Configuration Register Commands */
+    LTC6810_2_CMD_WRCFG = 0b00000000001, /*!< Write configuration register group */
+    LTC6810_2_CMD_RDCFG = 0b00000000010, /*!< Read configuration register group */
+
+    /*! Control Register Commands (PWM and S) */
+    LTC6810_2_CMD_WRSCTRL  = 0b00000010100, /*!< Write S control register group */
+    LTC6810_2_CMD_RDSCTRL  = 0b00000010110, /*!< Read S control register group */
+    LTC6810_2_CMD_STSCTRL  = 0b00000011001, /*!< Start S control pulsing and poll status */
+    LTC6810_2_CMD_CLRSCTRL = 0b00000011000, /*!< Clear S control register group */
+    LTC6810_2_CMD_WRPWM = 0b00000100000,   /*!< Write PWM register group */
+    LTC6810_2_CMD_RDPWM = 0b00000100010,   /*!< Read PWM register group */
+
+    /*! Cell Voltage Register Commands (6-cell device only) */
+    LTC6810_2_CMD_RDCVA = 0b00000000100, /*!< Read cell voltage register group A */
+    LTC6810_2_CMD_RDCVB = 0b00000000110, /*!< Read cell voltage register group B */
+
+    /*! S Voltage (Redundant Cell) Register Commands */
+    LTC6810_2_CMD_RDSA = 0b00000001000, /*!< Read S voltage register group A */
+    LTC6810_2_CMD_RDSB = 0b00000001010, /*!< Read S voltage register group B */
+
+    /*! Auxiliary Register Commands (2 groups only) */
+    LTC6810_2_CMD_RDAUXA = 0b00000001100, /*!< Read auxiliary register group A */
+    LTC6810_2_CMD_RDAUXB = 0b00000001110, /*!< Read auxiliary register group B */
+
+    /*! Status Register Commands */
+    LTC6810_2_CMD_RDSTATA = 0b00000010000, /*!< Read status register group A */
+    LTC6810_2_CMD_RDSTATB = 0b00000010010, /*!< Read status register group B */
+
+    /*! Serial ID Register Command */
+    LTC6810_2_CMD_RDSID = 0b00000101100, /*!< Read serial ID register group */
+
+    /*! ADC Conversion Commands */
+    LTC6810_2_CMD_ADCV = 0b01001100000,    /*!< Start cell voltage ADC conversion and poll status */
+    LTC6810_2_CMD_ADOW = 0b01000101000,    /*!< Start open wire ADC conversion and poll status */
+    LTC6810_2_CMD_ADOL = 0b01000000001,    /*!< Start overlap measurement of S voltage for all cells */
+    LTC6810_2_CMD_CVST = 0b01000000111,    /*!< Start self test cell voltage conversion and poll status */
+    LTC6810_2_CMD_ADAX = 0b10001100000,    /*!< Start GPIOs ADC conversion and poll status */
+    LTC6810_2_CMD_ADAXD = 0b10000000000,   /*!< Start GPIOs ADC with digital redundancy and poll status */
+    LTC6810_2_CMD_AXOW = 0b10001010000,    /*!< Start GPIOs ADC open wire conversion and poll status */
+    LTC6810_2_CMD_AXST = 0b10000000111,    /*!< Start self test GPIOs conversion and poll status */
+    LTC6810_2_CMD_ADSTAT = 0b10001101000,  /*!< Start status group ADC conversion and poll status */
+    LTC6810_2_CMD_ADSTATD = 0b10000001000, /*!< Start status group ADC conversion with digital redundancy and poll status */
+    LTC6810_2_CMD_STATST = 0b10000001111,  /*!< Start self test status group conversion and poll status */
+    LTC6810_2_CMD_ADCVAX = 0b10001101111,  /*!< Start combined cell voltage and GPIO1, GPIO2 conversion and poll status */
+    LTC6810_2_CMD_ADCVSC = 0b10001100111,  /*!< Start combined cell voltage and SC conversion and poll status */
+
+    /*! Clear Register Commands */
+    LTC6810_2_CMD_CLRCELL = 0b11100010001, /*!< Clear cell voltage register groups */
+    LTC6810_2_CMD_CLRAUX = 0b11100010010,  /*!< Clear auxiliary register groups */
+    LTC6810_2_CMD_CLRSTAT = 0b11100010011, /*!< Clear status register groups */
+
+    /*! Poll and Diagnostic Commands */
+    LTC6810_2_CMD_PLADC = 0b11100010100, /*!< Poll ADC conversion status */
+    LTC6810_2_CMD_DIAGN = 0b11100010101, /*!< Diagnose MUX and poll status */
+
+    /*! COMM Register Commands (I2C/SPI Master) */
+    LTC6810_2_CMD_WRCOMM = 0b11100100001, /*!< Write COMM register group */
+    LTC6810_2_CMD_RDCOMM = 0b11100100010, /*!< Read COMM register group */
+    LTC6810_2_CMD_STCOMM = 0b11100100011, /*!< Start I2C/SPI communication */
+
+    /*! Discharge Control Commands */
+    LTC6810_2_CMD_MUTE = 0b00000101000,  /*!< Mute discharge */
+    LTC6810_2_CMD_UNMUTE = 0b00000101001 /*!< Unmute discharge */
 };
 
 /*!
@@ -183,8 +200,8 @@ enum Ltc68102Cfgxr {
 enum Ltc68102Cvxr {
     LTC6810_2_CVAR = 0,
     LTC6810_2_CVBR,
-    LTC6810_2_CVCR,
-    LTC6810_2_CVDR,
+    LTC6810_2_CVCR, /*!< Redundant S voltage register group A */
+    LTC6810_2_CVDR, /*!< Redundant S voltage register group B */
     LTC6810_2_CVXR_COUNT
 };
 
@@ -192,17 +209,17 @@ enum Ltc68102Cvxr {
  * \brief           Auxiliary voltage register group names
  */
 enum Ltc68102Avxr {
-    LTC6810_2_AVAR = 0,
-    LTC6810_2_AVBR,
-    LTC6810_2_AVXR_COUNT
+    LTC6810_2_AVAR = 0,  /*!< Auxiliary register group A */
+    LTC6810_2_AVBR,      /*!< Auxiliary register group B */
+    LTC6810_2_AVXR_COUNT /*!< The number of group names */
 };
 
 /*!
  * \brief           Status register group names
  */
 enum Ltc68102Stxr {
-    LTC6810_2_STAR = 0,
-    LTC6810_2_STBR,
+    LTC6810_2_STAR = 0, /*!< Status register group A */
+    LTC6810_2_STBR,     /*!< Status register group B */
     LTC6810_2_STXR_COUNT
 };
 
@@ -210,16 +227,13 @@ enum Ltc68102Stxr {
  * \brief           COMM register group names
  */
 enum Ltc68102Commx {
-    LTC6810_2_COMMA = 0,
+    LTC6810_2_COMM0 = 0,
+    LTC6810_2_COMM1,
+    LTC6810_2_COMM2,
+    LTC6810_2_COMM3,
+    LTC6810_2_COMM4,
+    LTC6810_2_COMM5,
     LTC6810_2_COMMX_COUNT
-};
-
-/*!
- * \brief           S pin control register group names
- */
-enum Ltc68102Sctrlx {
-    LTC6810_2_SCTRLA = 0,
-    LTC6810_2_SCTRLX_COUNT
 };
 
 /*!
@@ -288,13 +302,7 @@ enum Ltc68102Ch {
     LTC6810_2_CH_4,
     LTC6810_2_CH_5,
     LTC6810_2_CH_6,
-    LTC6810_2_CH_7 = LTC6810_2_CH_1,
-    LTC6810_2_CH_8 = LTC6810_2_CH_2,
-    LTC6810_2_CH_9 = LTC6810_2_CH_3,
-    LTC6810_2_CH_10 = LTC6810_2_CH_4,
-    LTC6810_2_CH_11 = LTC6810_2_CH_5,
-    LTC6810_2_CH_12 = LTC6810_2_CH_6,
-    LTC6810_2_CH_COUNT = 7
+    LTC6810_2_CH_COUNT
 };
 
 /*!
@@ -302,11 +310,11 @@ enum Ltc68102Ch {
  */
 enum Ltc68102Chg {
     LTC6810_2_CHG_GPIO_ALL = 0,
+    LTC6810_2_CHG_S0,
     LTC6810_2_CHG_GPIO_1,
     LTC6810_2_CHG_GPIO_2,
     LTC6810_2_CHG_GPIO_3,
     LTC6810_2_CHG_GPIO_4,
-    LTC6810_2_CHG_GPIO_5,
     LTC6810_2_CHG_SECOND_REF, /*!< Second voltage reference */
     LTC6810_2_CHG_COUNT
 };
@@ -389,10 +397,10 @@ enum Ltc68102SpiWfcom {
  * \brief           I2C inital communication control bits on read
  */
 enum Ltc68102I2cRicom {
-    LTC6811_I2C_RICOM_START = 0b0110,     /*!< Master generated a start signal */
-    LTC6811_I2C_RICOM_STOP = 0b0001,      /*!< Master generated a stop signal */
-    LTC6811_I2C_RICOM_BLANK = 0b0000,     /*!< SDA was held low between bytes */
-    LTC6811_I2C_RICOM_NOTRANSMIT = 0b0111 /*!< SDA was held high between bytes */
+    LTC6810_I2C_RICOM_START = 0b0110,     /*!< Master generated a start signal */
+    LTC6810_I2C_RICOM_STOP = 0b0001,      /*!< Master generated a stop signal */
+    LTC6810_I2C_RICOM_BLANK = 0b0000,     /*!< SDA was held low between bytes */
+    LTC6810_I2C_RICOM_NOTRANSMIT = 0b0111 /*!< SDA was held high between bytes */
 };
 
 /*!
@@ -422,57 +430,103 @@ enum Ltc68102SpiRfcom {
 
 /*!
  * \brief           Configuration register group structure
+ *
+ * \details         Layout from datasheet page 64, table 42 (bit 7 ... bit 0):
+ *
+ *                  CFGR0 = [RSVD][GPIO4..GPIO1][REFON][DTEN][ADCOPT]
+ *                  CFGR1 = VUV[7:0]
+ *                  CFGR2 = [VOV[3:0]][VUV[11:8]]
+ *                  CFGR3 = VOV[11:4]
+ *                  CFGR4 = [DCC0][MCAL][DCC6..DCC1]
+ *                  CFGR5 = [DCTO[3:0]][SCONV][FDRF][DIS_RED][DTMEN]
+ *
+ * \note            DCC0 is the 7th discharge control bit (CFGR4[7])
  */
 struct Ltc68102Cfgr {
-    uint8_t ADCOPT : 1; /*!< ADC mode option bit */
-    uint8_t DTEN : 1;   /*!< Discharge timer enable (READ ONLY) */
-    uint8_t REFON : 1;  /*!< References powered up */
-    uint8_t GPIO : 5;   /*!< GPIOx pin control (GPIO1 starts from the least significant bit) */
-    uint16_t VUV : 12;  /*!< Undervoltage comparison voltage */
-    uint16_t VOV : 12;  /*!< Overvoltage comparison voltage */
-    uint16_t DCC : 12;  /*!< Discharge cell x */
-    uint8_t DCTO : 4;   /*!< Discharge time out value */
+    uint8_t ADCOPT : 1;  /*!< CFGR0[0] ADC mode option bit */
+    uint8_t DTEN : 1;    /*!< CFGR0[1] Discharge timer enable (read only) */
+    uint8_t REFON : 1;   /*!< CFGR0[2] References powered up */
+    uint8_t GPIO : 4;    /*!< CFGR0[6:3] GPIO1..GPIO4 pin control */
+    uint8_t RSVD : 1;    /*!< CFGR0[7] Reserved */
+    uint16_t VUV : 12;   /*!< CFGR1 + CFGR2[3:0] Undervoltage comparison voltage */
+    uint16_t VOV : 12;   /*!< CFGR2[7:4] + CFGR3 Overvoltage comparison voltage */
+    uint8_t DCC : 6;     /*!< CFGR4[5:0] Discharge cells 1..6 (DCC1..DCC6) */
+    uint8_t MCAL : 1;    /*!< CFGR4[6] Multi-calibration enable */
+    uint8_t DCC0 : 1;    /*!< CFGR4[7] Discharge 7th cell / S0 (DCC0) */
+    uint8_t DTMEN : 1;   /*!< CFGR5[0] Discharge timer monitor enable */
+    uint8_t DIS_RED : 1; /*!< CFGR5[1] Disable digital redundancy check */
+    uint8_t FDRF : 1;    /*!< CFGR5[2] Force digital redundancy failure */
+    uint8_t SCONV : 1;   /*!< CFGR5[3] Enable cell measurement redundancy via S pins */
+    uint8_t DCTO : 4;    /*!< CFGR5[7:4] Discharge time-out value */
 } __attribute__((__packed__));
 
 /*!
  * \brief           Status register group structure
+ *
+ * \details         Layout from datasheet page 65, tables 47-48 (bit 7 ... bit 0):
+ *
+ *                  STAR0 = SC[7:0]      STAR1 = SC[15:8]
+ *                  STAR2 = ITMP[7:0]    STAR3 = ITMP[15:8]
+ *                  STAR4 = VA[7:0]      STAR5 = VA[15:8]
+ *                  STBR0 = VD[7:0]      STBR1 = VD[15:8]
+ *                  STBR2 = [C4OV][C4UV][C3OV][C3UV][C2OV][C2UV][C1OV][C1UV]
+ *                  STBR3 = [RSVD x3][MUTE][C6OV][C6UV][C5OV][C5UV]
+ *                  STBR4 = RSVD (all bits)
+ *                  STBR5 = [REV[3:0]][RSVD x2][MUXFAIL][THSD]
+ *
+ * \warning         The per-cell OV/UV flags are INTERLEAVED on the wire
+ *                  (C1UV, C1OV, C2UV, C2OV, ...). The cell_flags field below
+ *                  holds the raw 12 bits.
  */
 struct Ltc68102Str {
-    uint16_t SC;         /*!< Sum of all cells measurement */
-    uint16_t ITMP;       /*!< Internal die temperature */
-    uint16_t VA;         /*!< Analog power supply voltage */
-    uint16_t VD;         /*!< Digital power supply voltage */
-    uint16_t COV : 12;   /*!< Cell over voltage flag */
-    uint16_t CUV : 12;   /*!< Cell under voltage flag */
-    uint8_t REV : 4;     /*!< Device revision code */
-    uint8_t RSVD : 2;    /*!< Reserved bits (always 0s) */
-    uint8_t MUXFAIL : 1; /*!< Multiplexer self test result */
-    uint8_t THSD : 1;    /*!< Thermal shutdown status */
+    uint16_t SC;              /*!< STAR0-1 Sum of all cells measurement */
+    uint16_t ITMP;            /*!< STAR2-3 Internal die temperature */
+    uint16_t VA;              /*!< STAR4-5 Analog power supply voltage */
+    uint16_t VD;              /*!< STBR0-1 Digital power supply voltage */
+    uint16_t cell_flags : 12; /*!< STBR2 + STBR3[3:0] interleaved CxUV/CxOV flags */
+    uint16_t MUTE : 1;        /*!< STBR3[4] Discharge mute status */
+    uint16_t RSVD0 : 3;       /*!< STBR3[7:5] Reserved */
+    uint8_t RSVD1;            /*!< STBR4 Reserved */
+    uint8_t THSD : 1;         /*!< STBR5[0] Thermal shutdown status */
+    uint8_t MUXFAIL : 1;      /*!< STBR5[1] Multiplexer self-test result */
+    uint8_t RSVD2 : 2;        /*!< STBR5[3:2] Reserved */
+    uint8_t REV : 4;          /*!< STBR5[7:4] Device revision code */
 } __attribute__((__packed__));
 
 /*!
- * \brief           External communication register group structure
+ * \brief           External communication (COMM) register group structure
  *
- * \details         The IC can be used as master for I2C and SPI communication
- *                  via its GPIOs.
- *                  For I2C:
- *                      - GPIO4 is used as the Serial DAta(SDA)
- *                      - GPIO5 is used as the Serial CLock(SCL)
- *                  For SPI:
- *                      - GPIO3 is used as the Chip Select(CSBM)
- *                      - GPIO4 is used as the Serial Data Input-Output(SDIOM)
- *                      - GPIO5 is used as the Serial Clock(SCKM)
+ * \details         Layout from datasheet page 66, table 51 (bit 7 ... bit 0):
  *
- * \warning         For SPI only mode 3 (CHPA = 1, CPOL = 1) is supported
+ *                  COMM0 = [ICOM0[3:0]][D0[7:4]]
+ *                  COMM1 = [D0[3:0]][FCOM0[3:0]]
+ *                  COMM2 = [ICOM1[3:0]][D1[7:4]]
+ *                  COMM3 = [D1[3:0]][FCOM1[3:0]]
+ *                  COMM4 = [ICOM2[3:0]][D2[7:4]]
+ *                  COMM5 = [D2[3:0]][FCOM2[3:0]]
+ *
+ *                  The IC acts as an I2C or SPI master via its GPIOs.
+ *                  I2C:  GPIO4 = SDA, GPIO5 = SCL
+ *                  SPI:  GPIO3 = CSBM, GPIO4 = SDIOM, GPIO5 = SCKM
+ *
+ * \note            Each data byte Dx is split across two register bytes and
+ *                  interleaved with the ICOMx/FCOMx control nibbles.
+ *
+ * \warning         For SPI, only mode 3 (CPHA = 1, CPOL = 1) is supported.
  */
 struct Ltc68102Comm {
-    uint8_t icom0 : 4;                     /*!< Initial communication control bits of the first data byte */
-    uint8_t icom1 : 4;                     /*!< Initial communication control bits of the second data byte */
-    uint8_t icom2 : 4;                     /*!< Initial communication control bits of the third data byte */
-    uint8_t fcom0 : 4;                     /*!< Final communication control bits of the first data byte */
-    uint8_t fcom1 : 4;                     /*!< Final communication control bits of the second data byte */
-    uint8_t fcom2 : 4;                     /*!< Final communication control bits of the third data byte */
-    uint8_t payload[LTC6810_2_COMM_COUNT]; /*!< Payload data transmited (received) to (from) I2C/SPI slave device */
+    uint8_t D0_hi : 4; /*!< COMM0[3:0] D0[7:4] */
+    uint8_t ICOM0 : 4; /*!< COMM0[7:4] Initial communication control bits of the first data byte */
+    uint8_t FCOM0 : 4; /*!< COMM1[3:0] Final communication control bits of the first data byte */
+    uint8_t D0_lo : 4; /*!< COMM1[7:4] D0[3:0] */
+    uint8_t D1_hi : 4; /*!< COMM2[3:0] D1[7:4] */
+    uint8_t ICOM1 : 4; /*!< COMM2[7:4] Initial communication control bits of the second data byte */
+    uint8_t FCOM1 : 4; /*!< COMM3[3:0] Final communication control bits of the second data byte */
+    uint8_t D1_lo : 4; /*!< COMM3[7:4] D1[3:0] */
+    uint8_t D2_hi : 4; /*!< COMM4[3:0] D2[7:4] */
+    uint8_t ICOM2 : 4; /*!< COMM4[7:4] Initial communication control bits of the third data byte*/
+    uint8_t FCOM2 : 4; /*!< COMM5[3:0] Final communication control bits of the third data byte*/
+    uint8_t D2_lo : 4; /*!< COMM5[7:4] D2[3:0] */
 } __attribute__((__packed__));
 
 /*!
