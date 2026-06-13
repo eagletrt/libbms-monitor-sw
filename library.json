@@ -6,6 +6,7 @@
     "keywords": [
         "bms-monitor",
         "ltc6811-1",
+        "ltc6810-2",
         "drivers",
         "embedded"
     ],
@@ -31,7 +32,9 @@
     ],
     "headers": [
         "ltc6811-1.h",
-        "ltc6811-1-api.h"
+        "ltc6811-1-api.h",
+        "ltc6810-2.h",
+        "ltc6810-2-api.h"
     ],
     "examples": [
         {
@@ -55,7 +58,8 @@
     },
     "build": {
         "flags": [
-            "-Iinclude/drivers/ltc6811-1"
+            "-Iinclude/drivers/ltc6811-1",
+            "-Iinclude/drivers/ltc6810-2"
         ]
     }
 }
