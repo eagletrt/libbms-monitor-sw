@@ -65,7 +65,7 @@ EAGLETRT_STATIC const uint16_t crcTable[] = {
  *
  * \param[in]       payload: The payload bytes
  * \param[in]       len: The length of the payload in bytes
- * \return          The calculated PEC
+ * \returns         uint16_t The calculated PEC
  */
 EAGLETRT_STATIC uint16_t prv_ltc6810_2_api_pec15(const uint8_t *const payload, const size_t len) {
     const uint16_t pec_seed = 16;
@@ -87,7 +87,7 @@ EAGLETRT_STATIC uint16_t prv_ltc6810_2_api_pec15(const uint8_t *const payload, c
  *
  * \param[in, out]  payload: The payload bytes
  * \param[in]       len: The length of the payload in bytes, PEC excluded
- * \return          The length of the payload in bytes, PEC included
+ * \returns         size_t The length of the payload in bytes, PEC included
  */
 EAGLETRT_STATIC_INLINE size_t prv_ltc6810_2_api_pec_calc(uint8_t *payload, size_t len) {
     uint16_t pec = prv_ltc6810_2_api_pec15(payload, len);
@@ -102,7 +102,7 @@ EAGLETRT_STATIC_INLINE size_t prv_ltc6810_2_api_pec_calc(uint8_t *payload, size_
  *
  * \param[in]       payload: The payload bytes
  * \param[in]       len: Length of the payload in bytes, PEC included
- * \return          True if the given and calculated PEC match, false otherwise
+ * \returns         bool True if the given and calculated PEC match, false otherwise
  */
 EAGLETRT_STATIC_INLINE bool prv_ltc6810_2_api_pec_is_correct(const uint8_t *payload, size_t len) {
     const uint8_t pec_offset_high = 8U;
@@ -122,7 +122,7 @@ EAGLETRT_STATIC_INLINE bool prv_ltc6810_2_api_pec_is_correct(const uint8_t *payl
  *
  * \param[in]       cmd: The command to copy
  * \param[out]      out: The array where command and PEC are stored
- * \return          The total number of encoded bytes, PEC included
+ * \returns         size_t The total number of encoded bytes, PEC included
  */
 EAGLETRT_STATIC_INLINE size_t prv_ltc6810_2_api_cmd_encode(enum Ltc68102Command cmd, uint8_t *out) {
     const uint8_t cmd_offset_high = 8U;
@@ -137,7 +137,7 @@ EAGLETRT_STATIC_INLINE size_t prv_ltc6810_2_api_cmd_encode(enum Ltc68102Command 
  *
  * \param[in]       cmd: The command without the option set
  * \param[in]       mode: The ADC conversion mode
- * \return          The given command with the ADC conversion mode set
+ * \returns         enum Ltc68102Command The given command with the ADC conversion mode set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_md(enum Ltc68102Command cmd, enum Ltc68102Md mode) {
     const uint8_t mode_offset = 7U;
@@ -150,7 +150,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_md(enum Lt
  *
  * \param[in]       cmd: The command without the option set
  * \param[in]       pup: The Pull-up/Pull-down option
- * \return          The given command with the Pull-up/Pull-down option set
+ * \returns         enum Ltc68102Command The given command with the Pull-up/Pull-down option set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_pup(enum Ltc68102Command cmd, enum Ltc68102Pup pup) {
     const uint8_t pup_offset = 6U;
@@ -162,7 +162,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_pup(enum L
  *
  * \param[in]       cmd: The command without the option set
  * \param[in]       mode: The self test mode option
- * \return          The given command with the self test mode set
+ * \returns         enum Ltc68102Command The given command with the self test mode set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_st(enum Ltc68102Command cmd, enum Ltc68102St mode) {
     const uint8_t mode_offset = 5U;
@@ -174,7 +174,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_st(enum Lt
  *
  * \param[in]       cmd: The command without the option set
  * \param[in]       dcp: The discharge permitted option
- * \return          The given command with the discharge option set
+ * \returns         enum Ltc68102CommandThe given command with the discharge option set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_dcp(enum Ltc68102Command cmd, enum Ltc68102Dcp dcp) {
     const uint8_t dcp_offset = 4U;
@@ -187,7 +187,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_dcp(enum L
  *
  * \param[in]       cmd: The command without the option set
  * \param[in]       cells: The selected cells
- * \return          The given command with the selected cells set
+ * \returns         enum Ltc68102Command The given command with the selected cells set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_ch(enum Ltc68102Command cmd, enum Ltc68102Ch cells) {
     return cells < LTC6810_2_CH_COUNT ? (cmd | (uint8_t)cells) : cmd;
@@ -199,7 +199,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_ch(enum Lt
  *
  * \param[in]       cmd: The command without the option set
  * \param[in]       gpios: The selected GPIOs
- * \return          The given command with the selected GPIOs set
+ * \returns         enum Ltc68102Command The given command with the selected GPIOs set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_chg(enum Ltc68102Command cmd, enum Ltc68102Chg gpios) {
     return gpios < LTC6810_2_CHG_COUNT ? (cmd | (uint8_t)gpios) : cmd;
@@ -211,7 +211,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_chg(enum L
  *
  * \param[in]       cmd: The command without the option set
  * \param[in]       groups: The selected status groups
- * \return          The given command with the selected status groups set
+ * \returns         enum Ltc68102Command The given command with the selected status groups set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_chst(enum Ltc68102Command cmd, enum Ltc68102Chst groups) {
     return groups < LTC6810_2_CHST_COUNT ? (cmd | (uint8_t)groups) : cmd;
@@ -244,7 +244,7 @@ size_t ltc6810_2_api_wrcfg_encode_broadcast(
         const size_t configIndex = handler->count - i - 1;
         const struct Ltc68102Cfgr *cfg = &(config[configIndex]);
 
-        out[encoded]     = (uint8_t)((cfg->GPIO << 3U) | (cfg->REFON << 2U) | (cfg->DTEN << 1U) | cfg->ADCOPT);
+        out[encoded] = (uint8_t)((cfg->GPIO << 3U) | (cfg->REFON << 2U) | (cfg->DTEN << 1U) | cfg->ADCOPT);
         out[encoded + 1] = (uint8_t)cfg->VUV;
         out[encoded + 2] = (uint8_t)((cfg->VOV << 4U) | (cfg->VUV >> 8U));
         out[encoded + 3] = (uint8_t)(cfg->VOV >> 4U);
@@ -437,12 +437,12 @@ size_t ltc6810_2_api_rdstat_decode_broadcast(
         if (prv_ltc6810_2_api_pec_is_correct(payload + off, byte_count)) {
             switch (reg) {
                 case LTC6810_2_STAR:
-                    out[i].SC   = (uint16_t)(payload[off]     | (payload[off + 1] << 8U));
+                    out[i].SC = (uint16_t)(payload[off] | (payload[off + 1] << 8U));
                     out[i].ITMP = (uint16_t)(payload[off + 2] | (payload[off + 3] << 8U));
-                    out[i].VA   = (uint16_t)(payload[off + 4] | ((uint16_t)payload[off + 5] << 8U));
+                    out[i].VA = (uint16_t)(payload[off + 4] | ((uint16_t)payload[off + 5] << 8U));
                     break;
                 case LTC6810_2_STBR:
-                    out[i].VD   = (uint16_t)(payload[off] | (payload[off + 1] << 8U));
+                    out[i].VD = (uint16_t)(payload[off] | (payload[off + 1] << 8U));
                     // STBR2 = C4UV/C4OV..C1UV/C1OV (bits[7:0]), STBR3[3:0] = C6UV/C6OV..C5UV/C5OV
                     out[i].cell_flags = (uint16_t)(payload[off + 2] | ((payload[off + 3] & 0x0FU) << 8U));
                     out[i].MUTE = (payload[off + 3] >> 4) & 0x01;
@@ -855,7 +855,7 @@ size_t ltc6810_2_api_wrcomm_encode_broadcast(
     for (size_t i = 0; i < handler->count; ++i) {
         struct Ltc68102Comm *comm = &(comms[handler->count - i - 1]);
 
-        out[encoded]     = (uint8_t)((comm->ICOM0 << 4U) | comm->D0_hi);
+        out[encoded] = (uint8_t)((comm->ICOM0 << 4U) | comm->D0_hi);
         out[encoded + 1] = (uint8_t)((comm->D0_lo << 4U) | comm->FCOM0);
         out[encoded + 2] = (uint8_t)((comm->ICOM1 << 4U) | comm->D1_hi);
         out[encoded + 3] = (uint8_t)((comm->D1_lo << 4U) | comm->FCOM1);

@@ -46,7 +46,7 @@ void ltc6810_2_api_init(struct Ltc68102Handler *handler, size_t ltc_count);
  *                  has ended otherwise this command will not work
  *
  * \param[in]       byte: A byte read after the pladc command was sent
- * \return          True if the conversion has ended, false otherwise
+ * \returns         bool True if the conversion has ended, false otherwise
  */
 bool ltc6810_2_api_pladc_is_completed(const uint8_t byte);
 
@@ -65,7 +65,7 @@ bool ltc6810_2_api_pladc_is_completed(const uint8_t byte);
  * \param[in]       handler: The IC handler structure
  * \param[in]       config: The configuration data array
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
  */
 size_t ltc6810_2_api_wrcfg_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -82,7 +82,7 @@ size_t ltc6810_2_api_wrcfg_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdcfg_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out);
 
@@ -96,7 +96,7 @@ size_t ltc6810_2_api_rdcfg_encode_broadcast(const struct Ltc68102Handler *handle
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the configuration data is stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdcfg_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -114,7 +114,7 @@ size_t ltc6810_2_api_rdcfg_decode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       reg: The register to read from
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
+ * \returns         szie_t The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdcv_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -134,7 +134,7 @@ size_t ltc6810_2_api_rdcv_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the cell voltages are stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdcv_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -152,7 +152,7 @@ size_t ltc6810_2_api_rdcv_decode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       reg: The register to read from
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdaux_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -171,7 +171,7 @@ size_t ltc6810_2_api_rdaux_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the auxiliary voltages are stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdaux_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -189,7 +189,7 @@ size_t ltc6810_2_api_rdaux_decode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       reg: The register to read from
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdstat_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -207,7 +207,7 @@ size_t ltc6810_2_api_rdstat_encode_broadcast(
  * \param[in]       reg: The register where the data comes from
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the status data is stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdstat_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -231,7 +231,7 @@ size_t ltc6810_2_api_rdstat_decode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of data to write
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
  */
 size_t ltc6810_2_api_wrsctrl_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -248,7 +248,7 @@ size_t ltc6810_2_api_wrsctrl_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdsctrl_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -267,7 +267,7 @@ size_t ltc6810_2_api_rdsctrl_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the S pin control data is stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdsctrl_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -285,7 +285,7 @@ size_t ltc6810_2_api_rdsctrl_decode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_stsctrl_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -301,7 +301,7 @@ size_t ltc6810_2_api_stsctrl_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_clrsctrl_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -322,7 +322,7 @@ size_t ltc6810_2_api_clrsctrl_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of data to write
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
  */
 size_t ltc6810_2_api_wrpwm_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -339,7 +339,7 @@ size_t ltc6810_2_api_wrpwm_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdpwm_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -358,7 +358,7 @@ size_t ltc6810_2_api_rdpwm_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the pwm data is stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdpwm_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -379,7 +379,7 @@ size_t ltc6810_2_api_rdpwm_decode_broadcast(
  * \param[in]       dcp: Allow (or not) measurements during discharge
  * \param[in]       cells: The selected cells to measure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adcv_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -403,7 +403,7 @@ size_t ltc6810_2_api_adcv_encode_broadcast(
  * \param[in]       dcp: Allow (or not) measurement during discharge
  * \param[in]       cells: The selected cells to measure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adow_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -426,7 +426,7 @@ size_t ltc6810_2_api_adow_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       test_mode: Self test mode option
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_cvst_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -447,7 +447,7 @@ size_t ltc6810_2_api_cvst_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       dcp: Allow (or not) measurement during discharge
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adol_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -468,7 +468,7 @@ size_t ltc6810_2_api_adol_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       gpios: The selected GPIOs
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adax_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -489,7 +489,7 @@ size_t ltc6810_2_api_adax_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       gpios: The selected GPIOs
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adaxd_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -510,7 +510,7 @@ size_t ltc6810_2_api_adaxd_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       test_mode: Self test mode option
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_axst_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -531,7 +531,7 @@ size_t ltc6810_2_api_axst_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       group: The selected status group
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adstat_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -552,7 +552,7 @@ size_t ltc6810_2_api_adstat_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       groups: The selected status group
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adstatd_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -573,7 +573,7 @@ size_t ltc6810_2_api_adstatd_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       test_mode: Self test mode option
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_statst_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -594,7 +594,7 @@ size_t ltc6810_2_api_statst_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       dcp: Allow (or not) measurement during discharge
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adcvax_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -615,7 +615,7 @@ size_t ltc6810_2_api_adcvax_encode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       dcp: Allow (or not) measurement during discharge
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_adcvsc_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -633,7 +633,7 @@ size_t ltc6810_2_api_adcvsc_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_clrcell_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -649,7 +649,7 @@ size_t ltc6810_2_api_clrcell_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_clraux_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -665,7 +665,7 @@ size_t ltc6810_2_api_clraux_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_clrstat_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -689,7 +689,7 @@ size_t ltc6810_2_api_clrstat_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_pladc_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -705,7 +705,7 @@ size_t ltc6810_2_api_pladc_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_diagn_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -726,7 +726,7 @@ size_t ltc6810_2_api_diagn_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       comms: The communication data to write
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_WRITE_BUFFER_SIZE
  */
 size_t ltc6810_2_api_wrcomm_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -744,7 +744,7 @@ size_t ltc6810_2_api_wrcomm_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdcomm_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -759,7 +759,7 @@ size_t ltc6810_2_api_rdcomm_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the communication data is stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdcomm_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -776,7 +776,7 @@ size_t ltc6810_2_api_rdcomm_decode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_STCOMM_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_STCOMM_BUFFER_SIZE
  */
 size_t ltc6810_2_api_stcomm_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -792,7 +792,7 @@ size_t ltc6810_2_api_stcomm_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_mute_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -808,7 +808,7 @@ size_t ltc6810_2_api_mute_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_unmute_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -824,7 +824,7 @@ size_t ltc6810_2_api_unmute_encode_broadcast(
  *
  * \param[in]       handler: The IC handler structure
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_READ_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdsid_encode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -839,7 +839,7 @@ size_t ltc6810_2_api_rdsid_encode_broadcast(
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
  * \param[out]      out: The array where the serial ID bytes are stored
- * \return          The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
+ * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
 size_t ltc6810_2_api_rdsid_decode_broadcast(
     const struct Ltc68102Handler *handler,
@@ -859,7 +859,7 @@ size_t ltc6810_2_api_rdsid_decode_broadcast(
  * \param[in]       mode: The selected ADC conversion mode
  * \param[in]       gpios: The selected GPIOs
  * \param[out]      out: The array where the encoded bytes are written
- * \return          The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
+ * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
 size_t ltc6810_2_api_axow_encode_broadcast(
     const struct Ltc68102Handler *handler,

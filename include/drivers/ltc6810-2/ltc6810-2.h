@@ -533,7 +533,7 @@ struct Ltc68102Comm {
  * \brief           LTC6810-2 handler structure
  */
 struct Ltc68102Handler {
-    size_t count;
+    size_t count; /*!< The number of devices on the bus */
 };
 
 #endif
