@@ -483,7 +483,8 @@ struct Ltc68102Str {
     uint16_t ITMP;            /*!< STAR2-3 Internal die temperature */
     uint16_t VA;              /*!< STAR4-5 Analog power supply voltage */
     uint16_t VD;              /*!< STBR0-1 Digital power supply voltage */
-    uint16_t cell_flags : 12; /*!< STBR2 + STBR3[3:0] interleaved CxUV/CxOV flags */
+    uint8_t COV : 6; /*!< Cell over voltage flag */
+    uint8_t CUV : 6; /*!< Cell under voltage flag */
     uint16_t MUTE : 1;        /*!< STBR3[4] Discharge mute status */
     uint16_t RSVD0 : 3;       /*!< STBR3[7:5] Reserved */
     uint8_t RSVD1;            /*!< STBR4 Reserved */
