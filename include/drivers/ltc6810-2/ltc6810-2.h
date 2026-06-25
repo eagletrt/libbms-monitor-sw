@@ -165,7 +165,7 @@ enum Ltc68102Command {
     LTC6810_2_CMD_ADSTATD = 0b10000001000, /*!< Start status group ADC conversion with digital redundancy and poll status */
     LTC6810_2_CMD_STATST = 0b10000001111,  /*!< Start self test status group conversion and poll status */
     LTC6810_2_CMD_ADCVAX = 0b10001101111,  /*!< Start combined cell voltage and GPIO1, GPIO2 conversion and poll status */
-    LTC6810_2_CMD_ADCVSC = 0b10001100111,  /*!< Start combined cell voltage and SC conversion and poll status */
+    LTC6810_2_CMD_ADCVSOC = 0b10001100111,  /*!< Start combined cell voltage and SC conversion and poll status */
 
     /*! Clear Register Commands */
     LTC6810_2_CMD_CLRCELL = 0b11100010001, /*!< Clear cell voltage register groups */
