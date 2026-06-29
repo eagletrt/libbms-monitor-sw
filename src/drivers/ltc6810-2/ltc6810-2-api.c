@@ -1,6 +1,6 @@
 /*!
  * \file            ltc6810-2.c
- * \date            2023-12-16
+ * \date            2026-05-13
  * \authors         Mirko Lana [mirko.lana@eagletrt.it]
  *
  * \brief           Function implementations needed for the LTC6810-2.
@@ -9,6 +9,7 @@
  * \link            https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6810-1-6810-2.pdf
  */
 
+#include "drivers/ltc6810-2/ltc6810-2.h"
 #include "ltc6810-2.h"
 #include "ltc6810-2-api.h"
 #include "eagletrt-api.h"
@@ -17,7 +18,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sys/types.h>
 
 /*!
  * \brief           Table of precomputed values used to calculate the PEC for messaging
@@ -229,10 +229,7 @@ bool ltc6810_2_api_pladc_is_completed(const uint8_t byte) {
     return byte == LTC6810_2_PLADC_COMPLETE_BYTE_VALUE;
 }
 
-size_t ltc6810_2_api_wrcfg_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    struct Ltc68102Cfgr *config,
-    uint8_t *out) {
+size_t ltc6810_2_api_wrcfg_encode_broadcast(const struct Ltc68102Handler *handler, struct Ltc68102Cfgr *config, uint8_t *out) {
     if (handler == NULL || config == NULL || out == NULL) {
         return 0U;
     }
@@ -263,10 +260,7 @@ size_t ltc6810_2_api_rdcfg_encode_broadcast(const struct Ltc68102Handler *handle
     return prv_ltc6810_2_api_cmd_encode(LTC6810_2_CMD_RDCFG, out);
 }
 
-size_t ltc6810_2_api_rdcfg_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    struct Ltc68102Cfgr *out) {
+size_t ltc6810_2_api_rdcfg_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, struct Ltc68102Cfgr *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -298,10 +292,7 @@ size_t ltc6810_2_api_rdcfg_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6810_2_api_rdcv_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Cvxr reg,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdcv_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Cvxr reg, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -314,12 +305,6 @@ size_t ltc6810_2_api_rdcv_encode_broadcast(
         case LTC6810_2_CVBR:
             cmd = LTC6810_2_CMD_RDCVB;
             break;
-        case LTC6810_2_CVCR:
-            cmd = LTC6810_2_CMD_RDSA;
-            break;
-        case LTC6810_2_CVDR:
-            cmd = LTC6810_2_CMD_RDSB;
-            break;
         default:
             cmd = LTC6810_2_CMD_RDCVA;
             break;
@@ -327,10 +312,7 @@ size_t ltc6810_2_api_rdcv_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_rdcv_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    uint16_t *out) {
+size_t ltc6810_2_api_rdcv_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint16_t *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0;
     }
@@ -351,10 +333,48 @@ size_t ltc6810_2_api_rdcv_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6810_2_api_rdaux_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Avxr reg,
-    uint8_t *out) {
+size_t ltc6810_2_api_rds_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Svxr reg, uint8_t *out) {
+    if (handler == NULL || out == NULL) {
+        return 0U;
+    }
+
+    enum Ltc68102Command cmd = LTC6810_2_CMD_RDSA;
+    switch (reg) {
+        case LTC6810_2_SVAR:
+            cmd = LTC6810_2_CMD_RDSA;
+            break;
+        case LTC6810_2_SVBR:
+            cmd = LTC6810_2_CMD_RDSB;
+            break;
+        default:
+            cmd = LTC6810_2_CMD_RDSA;
+            break;
+    }
+
+    return prv_ltc6810_2_api_cmd_encode(cmd, out);
+}
+
+size_t ltc6810_2_rds_decode_broadcast(const struct Ltc68102Handler *handler, uint8_t *payload, void *out) {
+    if (handler == NULL || payload == NULL || out == NULL) {
+        return 0;
+    }
+
+    size_t decoded = 0, off = 0;
+    const size_t byte_count = LTC6810_2_REG_BYTE_COUNT + LTC6810_2_PEC_BYTE_COUNT;
+    for (size_t i = 0; i < handler->count; ++i) {
+        if (prv_ltc6810_2_api_pec_is_correct(payload + off, byte_count)) {
+            for (size_t j = 0; j < LTC6810_2_REG_CELL_COUNT; ++j) {
+                size_t cell_off = off + j * sizeof(uint16_t);
+                out[i * LTC6810_2_REG_CELL_COUNT + j] = (uint16_t)(payload[cell_off] | (payload[cell_off + 1] << 8U));
+            }
+            decoded += byte_count;
+        }
+        off += byte_count;
+    }
+    return decoded;
+}
+
+size_t ltc6810_2_api_rdaux_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Avxr reg, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -374,10 +394,7 @@ size_t ltc6810_2_api_rdaux_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_rdaux_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    uint16_t *out) {
+size_t ltc6810_2_api_rdaux_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint16_t *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -398,10 +415,7 @@ size_t ltc6810_2_api_rdaux_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6810_2_api_rdstat_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Stxr reg,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdstat_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Stxr reg, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -421,11 +435,7 @@ size_t ltc6810_2_api_rdstat_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_rdstat_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Stxr reg,
-    const uint8_t *payload,
-    struct Ltc68102Str *out) {
+size_t ltc6810_2_api_rdstat_decode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Stxr reg, const uint8_t *payload, struct Ltc68102Str *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -443,14 +453,20 @@ size_t ltc6810_2_api_rdstat_decode_broadcast(
                     break;
                 case LTC6810_2_STBR:
                     out[i].VD = (uint16_t)(payload[off] | (payload[off + 1] << 8U));
-                    // STBR2 = C4UV/C4OV..C1UV/C1OV (bits[7:0]), STBR3[3:0] = C6UV/C6OV..C5UV/C5OV
-                    out[i].cell_flags = (uint16_t)(payload[off + 2] | ((payload[off + 3] & 0x0FU) << 8U));
-                    out[i].MUTE = (payload[off + 3] >> 4) & 0x01;
-                    out[i].RSVD0 = (payload[off + 3] >> 5) & 0x07;
-                    out[i].RSVD1 = payload[off + 4];
+                    // Get CUV and COV bits
+                    for (size_t byte = 0U; byte < 2U; ++byte) {
+                        size_t bit_count = (byte == 1U) ? 2U : 4U;
+                        for (size_t b = 0; b < bit_count; ++b) {
+                            uint16_t cuv = (payload[off + byte + 2] & (1 << (b * 2))) >> b;
+                            uint16_t cov = (payload[off + byte + 2] & (1 << (b * 2 + 1))) >> (b + 1);
+                            out[i].CUV |= cuv << (byte * 4);
+                            out[i].COV |= cov << (byte * 4);
+                        }
+                    }
+                    out[i].MUTE = (payload[off + 3] >> 5) & 0x01;
+                    out[i].RSVD = (payload[off + 3] & 0x07) | (payload[4] << 5) | ((payload[off + 5] >> 2) & 0x03);
                     out[i].THSD = payload[off + 5] & 0x01;
                     out[i].MUXFAIL = (payload[off + 5] >> 1) & 0x01;
-                    out[i].RSVD2 = (payload[off + 5] >> 2) & 0x03;
                     out[i].REV = (payload[off + 5] >> 4) & 0x0F;
                     break;
                 default:
@@ -463,10 +479,7 @@ size_t ltc6810_2_api_rdstat_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6810_2_api_wrsctrl_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    uint8_t *out) {
+size_t ltc6810_2_api_wrsctrl_encode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -486,9 +499,7 @@ size_t ltc6810_2_api_wrsctrl_encode_broadcast(
     return encoded;
 }
 
-size_t ltc6810_2_api_rdsctrl_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdsctrl_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -496,56 +507,7 @@ size_t ltc6810_2_api_rdsctrl_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_rdsctrl_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    uint8_t *out) {
-    if (handler == NULL || payload == NULL || out == NULL) {
-        return 0;
-    }
-
-    size_t decoded = 0, off = 0;
-    const size_t byte_count = LTC6810_2_REG_BYTE_COUNT + LTC6810_2_PEC_BYTE_COUNT;
-    for (size_t i = 0; i < handler->count; ++i) {
-        // Check PEC validity
-        if (prv_ltc6810_2_api_pec_is_correct(payload + off, byte_count)) {
-            // For each payload byte
-            for (size_t byte = 0; byte < LTC6810_2_REG_BYTE_COUNT; ++byte) {
-                size_t index = i * LTC6810_2_REG_SCTRL_COUNT + byte * 2;
-                out[index] = payload[off + byte] & 0x0F;
-                out[index + 1] = payload[off + byte] >> 4;
-            }
-            decoded += byte_count;
-        }
-        off += byte_count;
-    }
-    return decoded;
-}
-
-size_t ltc6810_2_api_stsctrl_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
-    if (handler == NULL || out == NULL) {
-        return 0U;
-    }
-    enum Ltc68102Command cmd = LTC6810_2_CMD_STSCTRL;
-    return prv_ltc6810_2_api_cmd_encode(cmd, out);
-}
-
-size_t ltc6810_2_api_clrsctrl_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
-    if (handler == NULL || out == NULL) {
-        return 0U;
-    }
-    enum Ltc68102Command cmd = LTC6810_2_CMD_CLRSCTRL;
-    return prv_ltc6810_2_api_cmd_encode(cmd, out);
-}
-
-size_t ltc6810_2_api_wrpwm_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    uint8_t *out) {
+size_t ltc6810_2_api_wrpwm_encode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -565,9 +527,7 @@ size_t ltc6810_2_api_wrpwm_encode_broadcast(
     return encoded;
 }
 
-size_t ltc6810_2_api_rdpwm_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdpwm_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -575,10 +535,7 @@ size_t ltc6810_2_api_rdpwm_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_rdpwm_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdpwm_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0;
     }
@@ -600,12 +557,7 @@ size_t ltc6810_2_api_rdpwm_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6810_2_api_adcv_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Dcp dcp,
-    enum Ltc68102Ch cells,
-    uint8_t *out) {
+size_t ltc6810_2_api_adcv_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Dcp dcp, enum Ltc68102Ch cells, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -617,13 +569,7 @@ size_t ltc6810_2_api_adcv_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_adow_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Pup pup,
-    enum Ltc68102Dcp dcp,
-    enum Ltc68102Ch cells,
-    uint8_t *out) {
+size_t ltc6810_2_api_adow_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Pup pup, enum Ltc68102Dcp dcp, enum Ltc68102Ch cells, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -636,11 +582,7 @@ size_t ltc6810_2_api_adow_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_cvst_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102St test_mode,
-    uint8_t *out) {
+size_t ltc6810_2_api_cvst_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102St test_mode, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -651,26 +593,7 @@ size_t ltc6810_2_api_cvst_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_adol_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Dcp dcp,
-    uint8_t *out) {
-    if (handler == NULL || out == NULL) {
-        return 0U;
-    }
-
-    enum Ltc68102Command cmd = LTC6810_2_CMD_ADOL;
-    cmd = prv_ltc6810_2_api_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6810_2_api_cmd_set_dcp(cmd, dcp);
-    return prv_ltc6810_2_api_cmd_encode(cmd, out);
-}
-
-size_t ltc6810_2_api_adax_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Chg gpios,
-    uint8_t *out) {
+size_t ltc6810_2_api_adax_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Chg gpios, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -681,11 +604,7 @@ size_t ltc6810_2_api_adax_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_adaxd_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Chg gpios,
-    uint8_t *out) {
+size_t ltc6810_2_api_adaxd_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Chg gpios, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -696,11 +615,7 @@ size_t ltc6810_2_api_adaxd_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_axst_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102St test_mode,
-    uint8_t *out) {
+size_t ltc6810_2_api_axst_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102St test_mode, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -711,11 +626,7 @@ size_t ltc6810_2_api_axst_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_adstat_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Chst groups,
-    uint8_t *out) {
+size_t ltc6810_2_api_adstat_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Chst groups, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -726,11 +637,7 @@ size_t ltc6810_2_api_adstat_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_adstatd_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Chst groups,
-    uint8_t *out) {
+size_t ltc6810_2_api_adstatd_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Chst groups, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -741,11 +648,7 @@ size_t ltc6810_2_api_adstatd_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_statst_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102St test_mode,
-    uint8_t *out) {
+size_t ltc6810_2_api_statst_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102St test_mode, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -756,11 +659,7 @@ size_t ltc6810_2_api_statst_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_adcvax_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Dcp dcp,
-    uint8_t *out) {
+size_t ltc6810_2_api_adcvax_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Dcp dcp, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -771,24 +670,18 @@ size_t ltc6810_2_api_adcvax_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_adcvsc_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Dcp dcp,
-    uint8_t *out) {
+size_t ltc6810_2_api_adcvsoc_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Dcp dcp, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
 
-    enum Ltc68102Command cmd = LTC6810_2_CMD_ADCVSC;
+    enum Ltc68102Command cmd = LTC6810_2_CMD_ADCVSOC;
     cmd = prv_ltc6810_2_api_cmd_set_md(cmd, mode);
     cmd = prv_ltc6810_2_api_cmd_set_dcp(cmd, dcp);
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_clrcell_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_clrcell_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -797,9 +690,7 @@ size_t ltc6810_2_api_clrcell_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_clraux_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_clraux_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -808,9 +699,7 @@ size_t ltc6810_2_api_clraux_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_clrstat_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_clrstat_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -819,9 +708,7 @@ size_t ltc6810_2_api_clrstat_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_pladc_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_pladc_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -830,9 +717,7 @@ size_t ltc6810_2_api_pladc_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_diagn_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_diagn_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -841,10 +726,7 @@ size_t ltc6810_2_api_diagn_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_wrcomm_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    struct Ltc68102Comm *comms,
-    uint8_t *out) {
+size_t ltc6810_2_api_wrcomm_encode_broadcast(const struct Ltc68102Handler *handler, struct Ltc68102Comm *comms, uint8_t *out) {
     if (handler == NULL || comms == NULL || out == NULL) {
         return 0U;
     }
@@ -855,21 +737,19 @@ size_t ltc6810_2_api_wrcomm_encode_broadcast(
     for (size_t i = 0; i < handler->count; ++i) {
         struct Ltc68102Comm *comm = &(comms[handler->count - i - 1]);
 
-        out[encoded] = (uint8_t)((comm->ICOM0 << 4U) | comm->D0_hi);
-        out[encoded + 1] = (uint8_t)((comm->D0_lo << 4U) | comm->FCOM0);
-        out[encoded + 2] = (uint8_t)((comm->ICOM1 << 4U) | comm->D1_hi);
-        out[encoded + 3] = (uint8_t)((comm->D1_lo << 4U) | comm->FCOM1);
-        out[encoded + 4] = (uint8_t)((comm->ICOM2 << 4U) | comm->D2_hi);
-        out[encoded + 5] = (uint8_t)((comm->D2_lo << 4U) | comm->FCOM2);
+        out[encoded] = (uint8_t)((comm->icom0 << 4) | (comm->payload[0] >> 4));
+        out[encoded + 1] = (uint8_t)(((comm->payload[0] & 0x0F) << 4) | comm->fcom0);
+        out[encoded + 2] = (uint8_t)((comm->icom1 << 4) | (comm->payload[1] >> 4));
+        out[encoded + 3] = (uint8_t)(((comm->payload[1] & 0x0F) << 4) | comm->fcom1);
+        out[encoded + 4] = (uint8_t)((comm->icom2 << 4) | (comm->payload[2] >> 4));
+        out[encoded + 5] = (uint8_t)(((comm->payload[2] & 0x0F) << 4) | comm->fcom2);
 
         encoded += prv_ltc6810_2_api_pec_calc(out + encoded, LTC6810_2_REG_BYTE_COUNT);
     }
     return encoded;
 }
 
-size_t ltc6810_2_api_rdcomm_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdcomm_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -878,10 +758,7 @@ size_t ltc6810_2_api_rdcomm_encode_broadcast(
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_api_rdcomm_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    struct Ltc68102Comm *out) {
+size_t ltc6810_2_api_rdcomm_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, struct Ltc68102Comm *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -911,9 +788,7 @@ size_t ltc6810_2_api_rdcomm_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6810_2_api_stcomm_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_stcomm_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -926,37 +801,28 @@ size_t ltc6810_2_api_stcomm_encode_broadcast(
     return encoded;
 }
 
-size_t ltc6810_2_api_mute_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_mute_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
     return prv_ltc6810_2_api_cmd_encode(LTC6810_2_CMD_MUTE, out);
 }
 
-size_t ltc6810_2_api_unmute_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_unmute_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
     return prv_ltc6810_2_api_cmd_encode(LTC6810_2_CMD_UNMUTE, out);
 }
 
-size_t ltc6810_2_api_rdsid_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdsid_encode_broadcast(const struct Ltc68102Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
     return prv_ltc6810_2_api_cmd_encode(LTC6810_2_CMD_RDSID, out);
 }
 
-size_t ltc6810_2_api_rdsid_decode_broadcast(
-    const struct Ltc68102Handler *handler,
-    const uint8_t *payload,
-    uint8_t *out) {
+size_t ltc6810_2_api_rdsid_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint8_t *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -975,11 +841,7 @@ size_t ltc6810_2_api_rdsid_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6810_2_api_axow_encode_broadcast(
-    const struct Ltc68102Handler *handler,
-    enum Ltc68102Md mode,
-    enum Ltc68102Chg gpios,
-    uint8_t *out) {
+size_t ltc6810_2_api_axow_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Pup pup, enum Ltc68102Chg gpios, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
@@ -987,5 +849,6 @@ size_t ltc6810_2_api_axow_encode_broadcast(
     enum Ltc68102Command cmd = LTC6810_2_CMD_AXOW;
     cmd = prv_ltc6810_2_api_cmd_set_md(cmd, mode);
     cmd = prv_ltc6810_2_api_cmd_set_chg(cmd, gpios);
+    cmd = prv_ltc6810_2_api_cmd_set_pup(cmd, pup);
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
