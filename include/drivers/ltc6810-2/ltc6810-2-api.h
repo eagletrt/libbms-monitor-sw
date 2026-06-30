@@ -692,6 +692,6 @@ size_t ltc6810_2_api_rdsid_decode_broadcast(const struct Ltc68102Handler *handle
  * \param[out]      out: The array where the encoded bytes are written
  * \returns         size_t The number of encoded bytes, should be equal to LTC6810_2_POLL_BUFFER_SIZE
  */
-size_t ltc6810_2_api_axow_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Chg gpios, uint8_t *out);
+size_t ltc6810_2_api_axow_encode_broadcast(const struct Ltc68102Handler *handler, enum Ltc68102Md mode, enum Ltc68102Pup pup, enum Ltc68102Chg gpios, uint8_t *out);
 
 #endif /*! LTC6810_2_API_H */

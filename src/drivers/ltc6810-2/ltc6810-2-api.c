@@ -354,7 +354,7 @@ size_t ltc6810_2_api_rds_encode_broadcast(const struct Ltc68102Handler *handler,
     return prv_ltc6810_2_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6810_2_rds_decode_broadcast(const struct Ltc68102Handler *handler, uint8_t *payload, void *out) {
+size_t ltc6810_2_rds_decode_broadcast(const struct Ltc68102Handler *handler, uint8_t *payload, uint16_t *out) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0;
     }
@@ -768,18 +768,17 @@ size_t ltc6810_2_api_rdcomm_decode_broadcast(const struct Ltc68102Handler *handl
     for (size_t i = 0; i < handler->count; ++i) {
         // Check PEC validity
         if (prv_ltc6810_2_api_pec_is_correct(payload + off, byte_count)) {
-            out[i].ICOM0 = payload[off + 0] >> 4;
-            out[i].D0_hi = payload[off + 0] & 0x0F;
-            out[i].D0_lo = payload[off + 1] >> 4;
-            out[i].FCOM0 = payload[off + 1] & 0x0F;
-            out[i].ICOM1 = payload[off + 2] >> 4;
-            out[i].D1_hi = payload[off + 2] & 0x0F;
-            out[i].D1_lo = payload[off + 3] >> 4;
-            out[i].FCOM1 = payload[off + 3] & 0x0F;
-            out[i].ICOM2 = payload[off + 4] >> 4;
-            out[i].D2_hi = payload[off + 4] & 0x0F;
-            out[i].D2_lo = payload[off + 5] >> 4;
-            out[i].FCOM2 = payload[off + 5] & 0x0F;
+            // Decode communication data
+            out[i].icom0 = payload[off + 0] >> 4;
+            out[i].icom1 = payload[off + 2] >> 4;
+            out[i].icom2 = payload[off + 4] >> 4;
+            out[i].fcom0 = payload[off + 1] & 0x0F;
+            out[i].fcom1 = payload[off + 3] & 0x0F;
+            out[i].fcom2 = payload[off + 5] & 0x0F;
+            for (size_t j = 0; j < LTC6810_2_REG_COMM_COUNT; ++j) {
+                out[i].payload[j] = ((payload[off + j * 2] & 0x0F) << 4) |
+                                    (payload[off + j * 2 + 1] >> 4);
+            }
 
             decoded += byte_count;
         }

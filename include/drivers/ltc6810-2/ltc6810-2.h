@@ -16,10 +16,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define LTC6810_2_REG_BYTE_COUNT (6U);  /*!< Number of bytes in a single register */
-#define LTC6810_2_CMD_BYTE_COUNT (2U);  /*!< Number of bytes of a single command (without PEC) */
-#define LTC6810_2_PEC_BYTE_COUNT (2U);  /*!< Number of bytes of the PEC */
-#define LTC6810_2_POLL_BYTE_COUNT (1U); /*!< Number of bytes of a single poll response */
+#define LTC6810_2_REG_BYTE_COUNT (6U)  /*!< Number of bytes in a single register */
+#define LTC6810_2_CMD_BYTE_COUNT (2U)  /*!< Number of bytes of a single command (without PEC) */
+#define LTC6810_2_PEC_BYTE_COUNT (2U)  /*!< Number of bytes of the PEC */
+#define LTC6810_2_POLL_BYTE_COUNT (1U) /*!< Number of bytes of a single poll response */
 
 #define LTC6810_2_T_IDLE_MS (5U)     /*!< Time required for the isoSPI port to go to the IDLE state in ms */
 #define LTC6810_2_T_SLEEP_MS (2000U) /*!< Time required for the LTC6810 to go the SLEEP state in ms */
@@ -47,6 +47,18 @@
 
 #define LTC6810_2_REG_AUX_COUNT (3U)                                         /*!< Number of auxiliary voltages in a single register (G[X]V) */
 #define LTC6810_2_AUX_COUNT (LTC6810_2_REG_AUX_COUNT * LTC6810_2_AVXR_COUNT) /*!< Number of auxiliary voltages in all registers (GV) */
+
+/*! \} */
+
+/*! @} */
+
+/*!
+ * \defgroup ltc6810_2_s_pin_control_registers S pin control registers definitions
+ * \{
+ */
+
+#define LTC6810_2_REG_SCTRL_COUNT (6U)                                             /*!< Number of S pin control values in a single register (SCTRL[X]) */
+#define LTC6810_2_SCTRL_COUNT (LTC6810_2_REG_SCTRL_COUNT * LTC6810_2_SCTRLX_COUNT) /*!< Number of S pin control values in all registers (SCTRL) */
 
 /*! \} */
 
@@ -195,7 +207,7 @@ enum Ltc68102Cvxr {
 /*!
  * \brief           Redundant S voltage register group names
  */
-enum Ltc68102Svxr {
+enum Ltc68102Svxr {
     LTC6810_2_SVAR = 0,
     LTC6810_2_SVBR,
     LTC6810_2_COUNT
