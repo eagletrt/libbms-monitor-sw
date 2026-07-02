@@ -28,7 +28,7 @@
 
 #define LTC6810_2_PLADC_COMPLETE_BYTE_VALUE (0xFF)
 
-#define LTC6810_2_OPEN_WIRE_THRESHOLD_MV (400U)
+#define LTC6810_2_OPEN_WIRE_THRESHOLD_MV (-400.F)
 
 /*!
  * \defgroup ltc6810_2_cell_voltage_registers Cell voltage registers definitions
@@ -280,9 +280,9 @@ enum Ltc68102Pup {
  * \brief           Self test mode selection
  */
 enum Ltc68102St {
-    LTC6810_2_ST_ONE = 0,
-    LTC6810_2_ST_TWO,
-    LTC6810_2_ST_COUNT
+    LTC6810_2_ST_ONE = 0b01,
+    LTC6810_2_ST_TWO = 0b10,
+    LTC6810_2_ST_COUNT = 2
 };
 
 /*!
