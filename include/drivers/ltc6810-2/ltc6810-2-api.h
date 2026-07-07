@@ -672,10 +672,10 @@ size_t ltc6810_2_api_rdsid_encode_broadcast(const struct Ltc68102Handler *handle
  *
  * \param[in]       handler: The IC handler structure
  * \param[in]       payload: The array of bytes to decode
- * \param[out]      out: The array where the serial ID bytes are stored
+ * \param[out]      out: The serial ID
  * \returns         size_t The number of decoded bytes (PEC included), should be equal to LTC6810_2_DATA_BUFFER_SIZE
  */
-size_t ltc6810_2_api_rdsid_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint8_t *out);
+size_t ltc6810_2_api_rdsid_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, unsigned _BitInt(48) * out);
 
 /*!
  * \brief           Encode the broadcast GPIOs ADC open wire conversion start
