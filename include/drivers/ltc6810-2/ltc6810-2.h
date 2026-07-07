@@ -24,7 +24,8 @@
 #define LTC6810_2_T_IDLE_MS (5U)     /*!< Time required for the isoSPI port to go to the IDLE state in ms */
 #define LTC6810_2_T_SLEEP_MS (2000U) /*!< Time required for the LTC6810 to go the SLEEP state in ms */
 
-#define LTC6810_2_STCOMM_CYCLES (72U) /*!< Required number of clock cycles for an STCOMM command completion */
+#define LTC6810_2_STCOMM_CYCLES (72U)                                /*!< Required number of clock cycles for an STCOMM command completion */
+#define LTC6810_2_STCOMM_BYTE_COUNT ((LTC6810_2_STCOMM_CYCLES) / 8U) /*!< SPI bytes needed for STCOMM extra clocks (72 cycles / 8 bits per byte = 9 bytes) */
 
 #define LTC6810_2_PLADC_COMPLETE_BYTE_VALUE (0xFF)
 
@@ -58,6 +59,7 @@
  */
 
 #define LTC6810_2_REG_SCTRL_COUNT (6U)                                             /*!< Number of S pin control values in a single register (SCTRL[X]) */
+#define LTC6810_2_SCTRLX_COUNT (1U)                                                /*!< Number of S pin control registers (SCTRL[X]) */
 #define LTC6810_2_SCTRL_COUNT (LTC6810_2_REG_SCTRL_COUNT * LTC6810_2_SCTRLX_COUNT) /*!< Number of S pin control values in all registers (SCTRL) */
 
 /*! \} */
@@ -119,7 +121,7 @@
  * \details         After the STCOMM command it is needed to wait 24 clock cycles
  *                  for each byte sent to the slave
  */
-#define LTC6810_2_STCOMM_BUFFER_SIZE ((LTC6810_2_CMD_BYTE_COUNT) + (LTC6810_2_PEC_BYTE_COUNT) + (LTC6810_2_STCOMM_CYCLES))
+#define LTC6810_2_STCOMM_BUFFER_SIZE ((LTC6810_2_CMD_BYTE_COUNT) + (LTC6810_2_PEC_BYTE_COUNT) + (LTC6810_2_STCOMM_BYTE_COUNT))
 
 /*!
  * \brief           List of available commands for communication with the LTC6810-2
@@ -210,7 +212,7 @@ enum Ltc68102Cvxr {
 enum Ltc68102Svxr {
     LTC6810_2_SVAR = 0,
     LTC6810_2_SVBR,
-    LTC6810_2_COUNT
+    LTC6810_2_SVXR_COUNT
 };
 
 /*!
@@ -486,8 +488,8 @@ struct Ltc68102Str {
     uint16_t ITMP;       /*!< STAR2-3 Internal die temperature */
     uint16_t VA;         /*!< STAR4-5 Analog power supply voltage */
     uint16_t VD;         /*!< STBR0-1 Digital power supply voltage */
-    uint8_t CUV : 6;     /*!< STBR2 + STBR3[3:0] Cell over voltage flag */
-    uint8_t COV : 6;     /*!< STBR2 + STBR3[3:0] Cell under voltage flag */
+    uint8_t CUV : 6;     /*!< STBR2 + STBR3[3:0] Cell under voltage flag */
+    uint8_t COV : 6;     /*!< STBR2 + STBR3[3:0] Cell over voltage flag */
     uint16_t MUTE : 1;   /*!< STBR3[4] Discharge mute status */
     uint16_t RSVD : 13;  /*!< STBR3[7:5] + STBR4 Rerserved */
     uint8_t THSD : 1;    /*!< STBR5[0] Thermal shutdown status */
