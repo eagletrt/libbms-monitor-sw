@@ -448,7 +448,7 @@ enum Ltc68102SpiRfcom {
  *
  * \note            DCC0 is the 7th discharge control bit (CFGR4[7])
  */
-struct Ltc68102Cfgr {
+struct [[gnu::packed]] Ltc68102Cfgr {
     uint8_t ADCOPT : 1;  /*!< CFGR0[0] ADC mode option bit */
     uint8_t DTEN : 1;    /*!< CFGR0[1] Discharge timer enable (read only) */
     uint8_t REFON : 1;   /*!< CFGR0[2] References powered up */
@@ -464,7 +464,7 @@ struct Ltc68102Cfgr {
     uint8_t FDRF : 1;    /*!< CFGR5[2] Force digital redundancy failure */
     uint8_t SCONV : 1;   /*!< CFGR5[3] Enable cell measurement redundancy via S pins */
     uint8_t DCTO : 4;    /*!< CFGR5[7:4] Discharge time-out value */
-} __attribute__((__packed__));
+};
 
 /*!
  * \brief           Status register group structure
@@ -484,7 +484,7 @@ struct Ltc68102Cfgr {
  *                  (C1UV, C1OV, C2UV, C2OV, ...). The cell_flags field below
  *                  holds the raw 12 bits.
  */
-struct Ltc68102Str {
+struct [[gnu::packed]] Ltc68102Str {
     uint16_t SC;         /*!< STAR0-1 Sum of all cells measurement */
     uint16_t ITMP;       /*!< STAR2-3 Internal die temperature */
     uint16_t VA;         /*!< STAR4-5 Analog power supply voltage */
@@ -496,7 +496,7 @@ struct Ltc68102Str {
     uint8_t THSD : 1;    /*!< STBR5[0] Thermal shutdown status */
     uint8_t MUXFAIL : 1; /*!< STBR5[1] Multiplexer self-test result */
     uint8_t REV : 4;     /*!< STBR5[7:4] Device revision code */
-} __attribute__((__packed__));
+};
 
 /*!
  * \brief           External communication (COMM) register group structure
@@ -520,7 +520,7 @@ struct Ltc68102Str {
  *
  * \warning         For SPI, only mode 3 (CPHA = 1, CPOL = 1) is supported.
  */
-struct Ltc68102Comm {
+struct [[gnu::packed]] Ltc68102Comm {
     uint8_t icom0 : 4;                     /*!< Initial communication control bits of the first data byte */
     uint8_t icom1 : 4;                     /*!< Initial communication control bits of the second data byte */
     uint8_t icom2 : 4;                     /*!< Initial communication control bits of the third data byte */
@@ -528,7 +528,7 @@ struct Ltc68102Comm {
     uint8_t fcom1 : 4;                     /*!< Final communication control bits of the second data byte */
     uint8_t fcom2 : 4;                     /*!< Final communication control bits of the third data byte */
     uint8_t payload[LTC6810_2_COMM_COUNT]; /*!< Payload data transmited (received) to (from) I2C/SPI slave device */
-} __attribute__((__packed__));
+};
 
 /*!
  * \brief           LTC6810-2 handler structure
