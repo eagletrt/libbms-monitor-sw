@@ -9,7 +9,6 @@
  * \link            https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6810-1-6810-2.pdf
  */
 
-#include "drivers/ltc6810-2/ltc6810-2.h"
 #include "ltc6810-2.h"
 #include "ltc6810-2-api.h"
 #include "eagletrt-api.h"
