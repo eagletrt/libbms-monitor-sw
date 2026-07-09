@@ -2393,13 +2393,10 @@ void test_rdsid_encode_with_null_output_array(void) {
 
 void test_rdsid_decode_with_valid_payload(void) {
 #define BUFFER_LENGTH (LTC6810_2_DATA_BUFFER_SIZE(LTC6810_2_COUNT))
-    const unsigned _BitInt(48) expected_id = (unsigned _BitInt(48))0b11110000 |
-                                             ((unsigned _BitInt(48))0b00001111 << 8U) |
-                                             ((unsigned _BitInt(48))0b11110000 << 16U) |
-                                             ((unsigned _BitInt(48))0b00001111 << 24U) |
-                                             ((unsigned _BitInt(48))0b11110000 << 32U) |
-                                             ((unsigned _BitInt(48))0b00001111 << 40U);
-    unsigned _BitInt(48) id = 0;
+    const uint8_t expected_id[LTC6810_2_ID_BYTE_COUNT] = {
+        0b11110000, 0b00001111, 0b11110000, 0b00001111, 0b11110000, 0b00001111
+    };
+    uint8_t id[LTC6810_2_ID_BYTE_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
     size_t expected_byte_count = 0U;
@@ -2413,16 +2410,16 @@ void test_rdsid_decode_with_valid_payload(void) {
         expected_byte_count += prv_ltc6810_2_api_pec_calc(payload + expected_byte_count, LTC6810_2_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, payload, &id);
+    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, payload, id);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
-    TEST_ASSERT_EQUAL_UINT64_MESSAGE((uint64_t)expected_id, (uint64_t)id, "Decoded payload data do not match");
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_id, id, LTC6810_2_ID_BYTE_COUNT, "Decoded payload data do not match");
 #undef BUFFER_LENGTH
 }
 
 void test_rdsid_decode_decoded_payload_same_order_with_valid_id(void) {
 #define BUFFER_LENGTH (LTC6810_2_DATA_BUFFER_SIZE(LTC6810_2_COUNT))
-    unsigned _BitInt(48) id = 0;
+    uint8_t id[LTC6810_2_ID_BYTE_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
     size_t expected_byte_count = 0U;
@@ -2431,24 +2428,21 @@ void test_rdsid_decode_decoded_payload_same_order_with_valid_id(void) {
         expected_byte_count += prv_ltc6810_2_api_pec_calc(payload + expected_byte_count, LTC6810_2_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, payload, &id);
+    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, payload, id);
 
-    // last IC in chain overwrites *out — expected value is last IC's byte 0
-    const unsigned _BitInt(48) expected_id = (unsigned _BitInt(48))(LTC6810_2_COUNT - 1U);
+    // last IC in chain overwrites out — expected value is last IC's byte 0
+    const uint8_t expected_id[LTC6810_2_ID_BYTE_COUNT] = { LTC6810_2_COUNT - 1U, 0, 0, 0, 0, 0 };
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
-    TEST_ASSERT_EQUAL_UINT64_MESSAGE((uint64_t)expected_id, (uint64_t)id, "Decoded payload data do not match");
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_id, id, LTC6810_2_ID_BYTE_COUNT, "Decoded payload data do not match");
 #undef BUFFER_LENGTH
 }
 
 void test_rdsid_decode_with_invalid_pec(void) {
 #define BUFFER_LENGTH (LTC6810_2_DATA_BUFFER_SIZE(LTC6810_2_COUNT))
-    const unsigned _BitInt(48) expected_id = (unsigned _BitInt(48))0b11110000 |
-                                             ((unsigned _BitInt(48))0b00001111 << 8U) |
-                                             ((unsigned _BitInt(48))0b11110000 << 16U) |
-                                             ((unsigned _BitInt(48))0b00001111 << 24U) |
-                                             ((unsigned _BitInt(48))0b11110000 << 32U) |
-                                             ((unsigned _BitInt(48))0b00001111 << 40U);
-    unsigned _BitInt(48) id = 0;
+    const uint8_t expected_id[LTC6810_2_ID_BYTE_COUNT] = {
+        0b11110000, 0b00001111, 0b11110000, 0b00001111, 0b11110000, 0b00001111
+    };
+    uint8_t id[LTC6810_2_ID_BYTE_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
     size_t expected_byte_count = 0U;
@@ -2465,32 +2459,32 @@ void test_rdsid_decode_with_invalid_pec(void) {
     const size_t payload_byte_count = LTC6810_2_REG_BYTE_COUNT + LTC6810_2_PEC_BYTE_COUNT;
     payload[6] = payload[7] = 0;
 
-    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, payload, &id);
+    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, payload, id);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count - payload_byte_count, decoded_byte_count, "Decoded byte count do not match");
-    TEST_ASSERT_EQUAL_UINT64_MESSAGE((uint64_t)expected_id, (uint64_t)id, "Payload with correct PEC was not decoded");
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_id, id, LTC6810_2_ID_BYTE_COUNT, "Payload with correct PEC was not decoded");
 #undef BUFFER_LENGTH
 }
 
 void test_rdsid_decode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6810_2_DATA_BUFFER_SIZE(LTC6810_2_COUNT))
-    unsigned _BitInt(48) id = 0;
+    uint8_t id[LTC6810_2_ID_BYTE_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(NULL, payload, &id);
+    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(NULL, payload, id);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
-    TEST_ASSERT_EQUAL_UINT64_MESSAGE(0ULL, (uint64_t)id, "Decoded payload data do not match");
+    TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, id, LTC6810_2_ID_BYTE_COUNT, "Decoded payload data do not match");
 #undef BUFFER_LENGTH
 }
 
 void test_rdsid_decode_with_null_payload(void) {
-    unsigned _BitInt(48) id = 0;
+    uint8_t id[LTC6810_2_ID_BYTE_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, NULL, &id);
+    const size_t decoded_byte_count = ltc6810_2_api_rdsid_decode_broadcast(&ltc6810_2, NULL, id);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
-    TEST_ASSERT_EQUAL_UINT64_MESSAGE(0ULL, (uint64_t)id, "Decoded payload data do not match");
+    TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, id, LTC6810_2_ID_BYTE_COUNT, "Decoded payload data do not match");
 }
 
 void test_rdsid_decode_with_null_output_array(void) {
