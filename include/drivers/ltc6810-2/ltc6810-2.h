@@ -20,6 +20,7 @@
 #define LTC6810_2_CMD_BYTE_COUNT (2U)  /*!< Number of bytes of a single command (without PEC) */
 #define LTC6810_2_PEC_BYTE_COUNT (2U)  /*!< Number of bytes of the PEC */
 #define LTC6810_2_POLL_BYTE_COUNT (1U) /*!< Number of bytes of a single poll response */
+#define LTC6810_2_ID_BYTE_COUNT (6U)   /*!< Number of bytes of the ID */
 
 #define LTC6810_2_T_IDLE_MS (5U)     /*!< Time required for the isoSPI port to go to the IDLE state in ms */
 #define LTC6810_2_T_SLEEP_MS (2000U) /*!< Time required for the LTC6810 to go the SLEEP state in ms */

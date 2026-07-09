@@ -825,7 +825,7 @@ size_t ltc6810_2_api_rdsid_encode_broadcast(const struct Ltc68102Handler *handle
     return prv_ltc6810_2_api_cmd_encode(LTC6810_2_CMD_RDSID, out);
 }
 
-size_t ltc6810_2_api_rdsid_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, unsigned _BitInt(48) * out) {
+size_t ltc6810_2_api_rdsid_decode_broadcast(const struct Ltc68102Handler *handler, const uint8_t *payload, uint8_t out[LTC6810_2_ID_BYTE_COUNT]) {
     if (handler == NULL || payload == NULL || out == NULL) {
         return 0U;
     }
@@ -834,12 +834,9 @@ size_t ltc6810_2_api_rdsid_decode_broadcast(const struct Ltc68102Handler *handle
     const size_t byte_count = LTC6810_2_REG_BYTE_COUNT + LTC6810_2_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
         if (prv_ltc6810_2_api_pec_is_correct(payload + off, byte_count)) {
-            *out = (unsigned _BitInt(48))payload[off] |
-                   ((unsigned _BitInt(48))payload[off + 1U] << 8U) |
-                   ((unsigned _BitInt(48))payload[off + 2U] << 16U) |
-                   ((unsigned _BitInt(48))payload[off + 3U] << 24U) |
-                   ((unsigned _BitInt(48))payload[off + 4U] << 32U) |
-                   ((unsigned _BitInt(48))payload[off + 5U] << 40U);
+            for (size_t j = 0; j < LTC6810_2_ID_BYTE_COUNT; ++j) {
+                out[j] = payload[off + j];
+            }
             decoded += byte_count;
         }
         off += byte_count;
