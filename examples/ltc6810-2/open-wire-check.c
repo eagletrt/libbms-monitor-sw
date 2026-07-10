@@ -14,7 +14,7 @@
  */
 void send_payload_dummy(uint8_t *payload, const size_t len) {
     EAGLETRT_API_UNUSED(payload);
-    printf("[INFO]: Sending %lu bytes of payload\n", len);
+    printf("[INFO]: Sending %u bytes of payload\n", len);
 }
 
 int main(void) {
@@ -59,7 +59,7 @@ int main(void) {
         if (adow_pup_byte_count == LTC6810_2_POLL_BUFFER_SIZE) {
             send_payload_dummy(adow_pup, adow_pup_byte_count);
         } else {
-            printf("[ERROR]: ADOW with Pull-up encode error on step %lu\n", step + 1);
+            printf("[ERROR]: ADOW with Pull-up encode error on step %u\n", step + 1);
         }
     }
 
@@ -175,14 +175,14 @@ int main(void) {
     for (size_t ltc = 0; ltc < LTC_COUNT; ++ltc) {
         for (size_t i = 0; i < LTC6810_2_CELL_COUNT - 1; ++i) {
             if (delta[ltc][i + 1] < (-400 * 10)) {
-                printf("[ERROR]: IC n°%lu, C(%lu) is open\n", ltc, i + 1);
+                printf("[ERROR]: IC n°%u, C(%u) is open\n", ltc, i + 1);
             }
         }
         if (pup[ltc][0] == 0) {
-            printf("[ERROR]: IC n°%lu, C(0) is open\n", ltc);
+            printf("[ERROR]: IC n°%u, C(0) is open\n", ltc);
         }
         if (pud[ltc][LTC6810_2_CELL_COUNT - 1] == 0) {
-            printf("[ERROR]: IC n°%lu, C(6) is open\n", ltc);
+            printf("[ERROR]: IC n°%u, C(6) is open\n", ltc);
         }
     }
 

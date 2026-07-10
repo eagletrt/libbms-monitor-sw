@@ -14,7 +14,7 @@
  */
 void send_payload_dummy(uint8_t *payload, const size_t len) {
     EAGLETRT_API_UNUSED(payload);
-    printf("[INFO]: Sending %lu bytes of payload\n", len);
+    printf("[INFO]: Sending %u bytes of payload\n", len);
 }
 
 int main(void) {
