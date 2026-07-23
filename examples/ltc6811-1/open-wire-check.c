@@ -1,12 +1,44 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "eagletrt-api.h"
 #include "ltc6811-1-api.h"
 #include "ltc6811-1.h"
 
+#include "stm32f4xx_hal.h" /*! Replace with your actual target header */
+
 #define LTC_COUNT (1U)
+#define UART_BUFFER_SIZE (1024U)
+
+UART_HandleTypeDef huart1;
+
+/*! Function definitions to suppress "is not implemented and will always fail" warning */
+void _close(void) {
+}
+
+void _lseek(void) {
+}
+
+void _read(void) {
+}
+
+void _write(void) {
+}
+
+void uart_printf(const char *fmt, ...) {
+    static uint8_t buffer[UART_BUFFER_SIZE];
+    va_list args;
+    va_start(args, fmt);
+
+    int len = vsnprintf((char *)buffer, UART_BUFFER_SIZE, fmt, args);
+    va_end(args);
+
+    if (len > 0) {
+        HAL_UART_Transmit(&huart1, buffer, (uint16_t)len, HAL_MAX_DELAY);
+    }
+}
 
 /*
  * This function does not actually send the payload since the transmission
@@ -14,7 +46,7 @@
  */
 void send_payload_dummy(uint8_t *payload, const size_t len) {
     EAGLETRT_API_UNUSED(payload);
-    printf("[INFO]: Sending %lu bytes of payload\n", len);
+    uart_printf("[INFO]: Sending %lu bytes of payload\n", len);
 }
 
 int main(void) {
@@ -59,7 +91,7 @@ int main(void) {
         if (adow_pup_byte_count == LTC6811_1_POLL_BUFFER_SIZE) {
             send_payload_dummy(adow_pup, adow_pup_byte_count);
         } else {
-            printf("[ERROR]: ADOW with Pull-up encode error on step %lu\n", step + 1);
+            uart_printf("[ERROR]: ADOW with Pull-up encode error on step %lu\n", step + 1);
         }
     }
 
@@ -77,7 +109,7 @@ int main(void) {
     if (poll_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
         send_payload_dummy(poll, poll_byte_size);
     } else {
-        printf("[ERROR]: Poll encoding error");
+        uart_printf("[ERROR]: Poll encoding error");
     }
 
     /*
@@ -93,9 +125,9 @@ int main(void) {
      */
     const uint8_t pladc_response = 0xff;
     if (ltc6811_1_pladc_is_completed(pladc_response)) {
-        printf("[INFO]: Conversion has completed\n");
+        uart_printf("[INFO]: Conversion has completed\n");
     } else {
-        printf("[WARNING]: Conversion has not completed yet\n");
+        uart_printf("[WARNING]: Conversion has not completed yet\n");
     }
 
     /*
@@ -122,7 +154,7 @@ int main(void) {
         if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
             send_payload_dummy(read, read_byte_count);
         } else {
-            printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
+            uart_printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
         }
 
         /*
@@ -138,9 +170,9 @@ int main(void) {
         uint16_t voltages[LTC6811_1_REG_CELL_COUNT * LTC_COUNT] = { 0 };
         const size_t byte_count = ltc6811_1_rdcv_decode_broadcast(&handler, payload, voltages);
         if (byte_count == LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)) {
-            printf("[SUCCES]: Register n°%u correctly decoded\n", reg);
+            uart_printf("[SUCCES]: Register n°%u correctly decoded\n", reg);
         } else {
-            printf("[ERROR]: Read decoding error for the register n°%u\n", reg);
+            uart_printf("[ERROR]: Read decoding error for the register n°%u\n", reg);
         }
     }
 
@@ -175,14 +207,14 @@ int main(void) {
     for (size_t ltc = 0; ltc < LTC_COUNT; ++ltc) {
         for (size_t i = 0; i < LTC6811_1_CELL_COUNT - 1; ++i) {
             if (delta[ltc][i + 1] < (-400 * 10)) {
-                printf("[ERROR]: IC n°%lu, C(%lu) is open\n", ltc, i + 1);
+                uart_printf("[ERROR]: IC n°%lu, C(%lu) is open\n", ltc, i + 1);
             }
         }
         if (pup[ltc][0] == 0) {
-            printf("[ERROR]: IC n°%lu, C(0) is open\n", ltc);
+            uart_printf("[ERROR]: IC n°%lu, C(0) is open\n", ltc);
         }
         if (pud[ltc][LTC6811_1_CELL_COUNT - 1] == 0) {
-            printf("[ERROR]: IC n°%lu, C(12) is open\n", ltc);
+            uart_printf("[ERROR]: IC n°%lu, C(12) is open\n", ltc);
         }
     }
 

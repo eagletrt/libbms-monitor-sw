@@ -1,12 +1,44 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "eagletrt-api.h"
 #include "ltc6810-2-api.h"
 #include "ltc6810-2.h"
 
+#include "stm32f4xx_hal.h" /*! Replace with your actual target header */
+
 #define LTC_COUNT (2U)
+#define UART_BUFFER_SIZE (1024U)
+
+UART_HandleTypeDef huart1;
+
+/*! Function definitions to suppress "is not implemented and will always fail" warning */
+void _close(void) {
+}
+
+void _lseek(void) {
+}
+
+void _read(void) {
+}
+
+void _write(void) {
+}
+
+void uart_printf(const char *fmt, ...) {
+    static uint8_t buffer[UART_BUFFER_SIZE];
+    va_list args;
+    va_start(args, fmt);
+
+    int len = vsnprintf((char *)buffer, UART_BUFFER_SIZE, fmt, args);
+    va_end(args);
+
+    if (len > 0) {
+        HAL_UART_Transmit(&huart1, buffer, (uint16_t)len, HAL_MAX_DELAY);
+    }
+}
 
 /*
  * This function does not actually send the payload since the transmission
@@ -14,7 +46,7 @@
  */
 void send_payload_dummy(uint8_t *payload, const size_t len) {
     EAGLETRT_API_UNUSED(payload);
-    printf("[INFO]: Sending %u bytes of payload\n", len);
+    uart_printf("[INFO]: Sending %u bytes of payload\n", len);
 }
 
 int main(void) {
@@ -44,7 +76,7 @@ int main(void) {
     if (adcv_byte_size == LTC6810_2_POLL_BUFFER_SIZE) {
         send_payload_dummy(start_conversion_payload, adcv_byte_size);
     } else {
-        printf("[ERROR]: Start conversion encoding error");
+        //     uart_printf("[ERROR]: Start conversion encoding error");
     }
 
     /*
@@ -61,7 +93,7 @@ int main(void) {
     if (poll_byte_size == LTC6810_2_POLL_BUFFER_SIZE) {
         send_payload_dummy(poll, poll_byte_size);
     } else {
-        printf("[ERROR]: Poll encoding error");
+        //     uart_printf("[ERROR]: Poll encoding error");
     }
 
     /*
@@ -77,9 +109,9 @@ int main(void) {
      */
     const uint8_t pladc_response = 0xff;
     if (ltc6810_2_api_pladc_is_completed(pladc_response)) {
-        printf("[INFO]: Conversion has completed\n");
+        //     uart_printf("[INFO]: Conversion has completed\n");
     } else {
-        printf("[WARNING]: Conversion has not completed yet\n");
+        //     uart_printf("[WARNING]: Conversion has not completed yet\n");
     }
 
     /*
@@ -106,7 +138,7 @@ int main(void) {
         if (read_byte_count == LTC6810_2_READ_BUFFER_SIZE) {
             send_payload_dummy(read, read_byte_count);
         } else {
-            printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
+            //         uart_printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
         }
 
         /*
@@ -122,9 +154,9 @@ int main(void) {
         uint16_t voltages[LTC6810_2_REG_CELL_COUNT * LTC_COUNT] = { 0 };
         const size_t byte_count = ltc6810_2_api_rdcv_decode_broadcast(&handler, payload, voltages);
         if (byte_count == LTC6810_2_DATA_BUFFER_SIZE(LTC_COUNT)) {
-            printf("[SUCCES]: Register n°%u correctly decoded\n", reg);
+            //         uart_printf("[SUCCES]: Register n°%u correctly decoded\n", reg);
         } else {
-            printf("[ERROR]: Read decoding error for the register n°%u\n", reg);
+            //         uart_printf("[ERROR]: Read decoding error for the register n°%u\n", reg);
         }
     }
     return 0;
