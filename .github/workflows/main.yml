@@ -22,6 +22,9 @@ jobs:
           examples/ltc6811-1/open-wire-check.c,
           examples/ltc6811-1/read-voltages.c,
           examples/ltc6811-1/read-write-configuration.c
+          examples/ltc6810-2/open-wire-check.c,
+          examples/ltc6810-2/read-voltages.c,
+          examples/ltc6810-2/read-write-configuration.c
         ]
 
     steps:

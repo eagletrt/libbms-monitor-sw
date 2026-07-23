@@ -72,7 +72,7 @@ EAGLETRT_STATIC uint16_t prv_ltc6810_2_api_pec15(const uint8_t *const payload, c
     for (size_t i = 0; i < len; ++i) {
         // calculate PEC table address
         uint16_t address = ((remainder >> 7) ^ payload[i]) & 0b11111111U;
-        remainder = (uint16_t)((remainder << 8U) ^ ltc6810_2_api_crc_table[address]);
+        remainder = ((remainder << 8U) ^ ltc6810_2_api_crc_table[address]);
     }
     // The CRC15 has a 0 in the LSB so the final value must be multiplied by 2
     return remainder * 2;
@@ -91,8 +91,8 @@ EAGLETRT_STATIC uint16_t prv_ltc6810_2_api_pec15(const uint8_t *const payload, c
 EAGLETRT_STATIC_INLINE size_t prv_ltc6810_2_api_pec_calc(uint8_t *payload, size_t len) {
     uint16_t pec = prv_ltc6810_2_api_pec15(payload, len);
     const uint8_t pec_offset_high = 8U;
-    payload[len] = (uint8_t)(pec >> pec_offset_high);
-    payload[len + 1] = (uint8_t)pec;
+    payload[len] = (pec >> pec_offset_high);
+    payload[len + 1] = pec;
     return len + LTC6810_2_PEC_BYTE_COUNT;
 }
 
@@ -105,7 +105,7 @@ EAGLETRT_STATIC_INLINE size_t prv_ltc6810_2_api_pec_calc(uint8_t *payload, size_
  */
 EAGLETRT_STATIC_INLINE bool prv_ltc6810_2_api_pec_is_correct(const uint8_t *payload, size_t len) {
     const uint8_t pec_offset_high = 8U;
-    uint16_t pec = (uint16_t)((payload[len - 2] << pec_offset_high) | payload[len - 1]);
+    uint16_t pec = ((payload[len - 2] << pec_offset_high) | payload[len - 1]);
     return prv_ltc6810_2_api_pec15(payload, len - LTC6810_2_PEC_BYTE_COUNT) == pec;
 }
 
@@ -126,8 +126,8 @@ EAGLETRT_STATIC_INLINE bool prv_ltc6810_2_api_pec_is_correct(const uint8_t *payl
 EAGLETRT_STATIC_INLINE size_t prv_ltc6810_2_api_cmd_encode(enum Ltc68102Command cmd, uint8_t *out) {
     const uint8_t cmd_offset_high = 8U;
     const uint8_t cmd_mask_high = 0b00000111U;
-    out[0] = (uint8_t)((cmd >> cmd_offset_high) & cmd_mask_high);
-    out[1] = (uint8_t)cmd;
+    out[0] = ((cmd >> cmd_offset_high) & cmd_mask_high);
+    out[1] = cmd;
     return prv_ltc6810_2_api_pec_calc(out, 2);
 }
 
@@ -189,7 +189,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_dcp(enum L
  * \returns         enum Ltc68102Command The given command with the selected cells set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_ch(enum Ltc68102Command cmd, enum Ltc68102Ch cells) {
-    return cells < LTC6810_2_CH_COUNT ? (cmd | (uint8_t)cells) : cmd;
+    return cells < LTC6810_2_CH_COUNT ? (cmd | cells) : cmd;
 }
 
 /*!
@@ -201,7 +201,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_ch(enum Lt
  * \returns         enum Ltc68102Command The given command with the selected GPIOs set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_chg(enum Ltc68102Command cmd, enum Ltc68102Chg gpios) {
-    return gpios < LTC6810_2_CHG_COUNT ? (cmd | (uint8_t)gpios) : cmd;
+    return gpios < LTC6810_2_CHG_COUNT ? (cmd | gpios) : cmd;
 }
 
 /*!
@@ -213,7 +213,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_chg(enum L
  * \returns         enum Ltc68102Command The given command with the selected status groups set
  */
 EAGLETRT_STATIC_INLINE enum Ltc68102Command prv_ltc6810_2_api_cmd_set_chst(enum Ltc68102Command cmd, enum Ltc68102Chst groups) {
-    return groups < LTC6810_2_CHST_COUNT ? (cmd | (uint8_t)groups) : cmd;
+    return groups < LTC6810_2_CHST_COUNT ? (cmd | groups) : cmd;
 }
 
 void ltc6810_2_api_init(struct Ltc68102Handler *handler, size_t ltc_count) {
@@ -240,12 +240,12 @@ size_t ltc6810_2_api_wrcfg_encode_broadcast(const struct Ltc68102Handler *handle
         const size_t configIndex = handler->count - i - 1;
         const struct Ltc68102Cfgr *cfg = &(config[configIndex]);
 
-        out[encoded] = (uint8_t)((cfg->GPIO << 3U) | (cfg->REFON << 2U) | (cfg->DTEN << 1U) | cfg->ADCOPT);
-        out[encoded + 1] = (uint8_t)cfg->VUV;
-        out[encoded + 2] = (uint8_t)((cfg->VOV << 4U) | (cfg->VUV >> 8U));
-        out[encoded + 3] = (uint8_t)(cfg->VOV >> 4U);
-        out[encoded + 4] = (uint8_t)(((cfg->DCC0 & 1U) << 7U) | ((cfg->MCAL & 1U) << 6U) | (cfg->DCC & 0b00111111U));
-        out[encoded + 5] = (uint8_t)((cfg->DCTO << 4U) | (cfg->SCONV << 3U) | (cfg->FDRF << 2U) | (cfg->DIS_RED << 1U) | cfg->DTMEN);
+        out[encoded] = ((cfg->GPIO << 3U) | (cfg->REFON << 2U) | (cfg->DTEN << 1U) | cfg->ADCOPT);
+        out[encoded + 1] = cfg->VUV;
+        out[encoded + 2] = ((cfg->VOV << 4U) | (cfg->VUV >> 8U));
+        out[encoded + 3] = (cfg->VOV >> 4U);
+        out[encoded + 4] = (((cfg->DCC0 & 1U) << 7U) | ((cfg->MCAL & 1U) << 6U) | (cfg->DCC & 0b00111111U));
+        out[encoded + 5] = ((cfg->DCTO << 4U) | (cfg->SCONV << 3U) | (cfg->FDRF << 2U) | (cfg->DIS_RED << 1U) | cfg->DTMEN);
 
         encoded += prv_ltc6810_2_api_pec_calc(out + encoded, LTC6810_2_REG_BYTE_COUNT);
     }
@@ -273,8 +273,8 @@ size_t ltc6810_2_api_rdcfg_decode_broadcast(const struct Ltc68102Handler *handle
             out[i].DTEN = (payload[off] & 0b00000010U) >> 1;
             out[i].REFON = (payload[off] & 0b00000100U) >> 2;
             out[i].GPIO = (payload[off] & 0b11111000U) >> 3;
-            out[i].VUV = (uint16_t)(payload[off + 1] | ((payload[off + 2] & 0b00001111U) << 8U));
-            out[i].VOV = (uint16_t)(((payload[off + 2] & 0b11110000U) >> 4U) | ((uint32_t)payload[off + 3] << 4U));
+            out[i].VUV = (payload[off + 1] | ((payload[off + 2] & 0b00001111U) << 8U));
+            out[i].VOV = (((payload[off + 2] & 0b11110000U) >> 4U) | (payload[off + 3] << 4U));
             out[i].DCC = payload[off + 4] & 0b00111111U;
             out[i].MCAL = (payload[off + 4] >> 6) & 0b00000001U;
             out[i].DCC0 = (payload[off + 4] >> 7) & 0b00000001U;
@@ -323,7 +323,7 @@ size_t ltc6810_2_api_rdcv_decode_broadcast(const struct Ltc68102Handler *handler
             // For each cell voltage in register
             for (size_t j = 0; j < LTC6810_2_REG_CELL_COUNT; ++j) {
                 size_t cell_off = off + j * sizeof(uint16_t);
-                out[i * LTC6810_2_REG_CELL_COUNT + j] = (uint16_t)(payload[cell_off] | (payload[cell_off + 1] << 8U));
+                out[i * LTC6810_2_REG_CELL_COUNT + j] = (payload[cell_off] | (payload[cell_off + 1] << 8U));
             }
             decoded += byte_count;
         }
@@ -364,7 +364,7 @@ size_t ltc6810_2_api_rds_decode_broadcast(const struct Ltc68102Handler *handler,
         if (prv_ltc6810_2_api_pec_is_correct(payload + off, byte_count)) {
             for (size_t j = 0; j < LTC6810_2_REG_CELL_COUNT; ++j) {
                 size_t cell_off = off + j * sizeof(uint16_t);
-                out[i * LTC6810_2_REG_CELL_COUNT + j] = (uint16_t)(payload[cell_off] | (payload[cell_off + 1] << 8U));
+                out[i * LTC6810_2_REG_CELL_COUNT + j] = (payload[cell_off] | (payload[cell_off + 1] << 8U));
             }
             decoded += byte_count;
         }
@@ -405,7 +405,7 @@ size_t ltc6810_2_api_rdaux_decode_broadcast(const struct Ltc68102Handler *handle
             // For each voltage in register
             for (size_t j = 0; j < LTC6810_2_REG_AUX_COUNT; ++j) {
                 size_t cell_off = off + j * sizeof(uint16_t);
-                out[i * LTC6810_2_REG_AUX_COUNT + j] = (uint16_t)(payload[cell_off] | (payload[cell_off + 1] << 8U));
+                out[i * LTC6810_2_REG_AUX_COUNT + j] = (payload[cell_off] | (payload[cell_off + 1] << 8U));
             }
             decoded += byte_count;
         }
@@ -446,12 +446,12 @@ size_t ltc6810_2_api_rdstat_decode_broadcast(const struct Ltc68102Handler *handl
         if (prv_ltc6810_2_api_pec_is_correct(payload + off, byte_count)) {
             switch (reg) {
                 case LTC6810_2_STAR:
-                    out[i].SC = (uint16_t)(payload[off] | (payload[off + 1] << 8U));
-                    out[i].ITMP = (uint16_t)(payload[off + 2] | (payload[off + 3] << 8U));
-                    out[i].VA = (uint16_t)(payload[off + 4] | ((uint16_t)payload[off + 5] << 8U));
+                    out[i].SC = (payload[off] | (payload[off + 1] << 8U));
+                    out[i].ITMP = (payload[off + 2] | (payload[off + 3] << 8U));
+                    out[i].VA = (payload[off + 4] | (payload[off + 5] << 8U));
                     break;
                 case LTC6810_2_STBR:
-                    out[i].VD = (uint16_t)(payload[off] | (payload[off + 1] << 8U));
+                    out[i].VD = (payload[off] | (payload[off + 1] << 8U));
                     out[i].CUV = 0U;
                     out[i].COV = 0U;
                     // Get CUV and COV bits
@@ -465,7 +465,7 @@ size_t ltc6810_2_api_rdstat_decode_broadcast(const struct Ltc68102Handler *handl
                         }
                     }
                     out[i].MUTE = (payload[off + 3] >> 4) & 0b00000001U;
-                    out[i].RSVD = (uint16_t)(((payload[off + 3] >> 5U) & 0b00000111U) | ((uint16_t)payload[off + 4] << 3U) | (((uint16_t)(payload[off + 5] >> 2U) & 0b00000011U) << 11U));
+                    out[i].RSVD = (((payload[off + 3] >> 5U) & 0b00000111U) | (payload[off + 4] << 3U) | (((payload[off + 5] >> 2U) & 0b00000011U) << 11U));
                     out[i].THSD = payload[off + 5] & 0b00000001U;
                     out[i].MUXFAIL = (payload[off + 5] >> 1) & 0b00000001U;
                     out[i].REV = (payload[off + 5] >> 4) & 0b00001111U;
@@ -493,7 +493,7 @@ size_t ltc6810_2_api_wrsctrl_encode_broadcast(const struct Ltc68102Handler *hand
         const size_t ltcIndex = handler->count - i - 1;
         for (size_t byte = 0; byte < LTC6810_2_REG_SCTRL_COUNT / 2U; ++byte) {
             const size_t index = ltcIndex * LTC6810_2_REG_SCTRL_COUNT + byte * 2U;
-            out[encoded + byte] = (uint8_t)((payload[index] & 0b00001111U) | ((payload[index + 1U] & 0b00001111U) << 4U));
+            out[encoded + byte] = ((payload[index] & 0b00001111U) | ((payload[index + 1U] & 0b00001111U) << 4U));
         }
         memset(out + encoded + LTC6810_2_REG_SCTRL_COUNT / 2U, 0x00U, LTC6810_2_REG_BYTE_COUNT - LTC6810_2_REG_SCTRL_COUNT / 2U);
         encoded += prv_ltc6810_2_api_pec_calc(out + encoded, LTC6810_2_REG_BYTE_COUNT);
@@ -522,7 +522,7 @@ size_t ltc6810_2_api_wrpwm_encode_broadcast(const struct Ltc68102Handler *handle
         const size_t ltcIndex = handler->count - i - 1;
         for (size_t byte = 0; byte < LTC6810_2_REG_PWM_COUNT / 2U; ++byte) {
             const size_t index = ltcIndex * LTC6810_2_REG_PWM_COUNT + byte * 2U;
-            out[encoded + byte] = (uint8_t)((payload[index] & 0b00001111U) | ((payload[index + 1U] & 0b00001111U) << 4U));
+            out[encoded + byte] = ((payload[index] & 0b00001111U) | ((payload[index + 1U] & 0b00001111U) << 4U));
         }
         memset(out + encoded + LTC6810_2_REG_PWM_COUNT / 2U, 0x00U, LTC6810_2_REG_BYTE_COUNT - LTC6810_2_REG_PWM_COUNT / 2U);
         encoded += prv_ltc6810_2_api_pec_calc(out + encoded, LTC6810_2_REG_BYTE_COUNT);
@@ -740,12 +740,12 @@ size_t ltc6810_2_api_wrcomm_encode_broadcast(const struct Ltc68102Handler *handl
     for (size_t i = 0; i < handler->count; ++i) {
         struct Ltc68102Comm *comm = &(comms[handler->count - i - 1]);
 
-        out[encoded] = (uint8_t)((comm->icom0 << 4) | (comm->payload[0] >> 4));
-        out[encoded + 1] = (uint8_t)(((comm->payload[0] & 0b00001111U) << 4) | comm->fcom0);
-        out[encoded + 2] = (uint8_t)((comm->icom1 << 4) | (comm->payload[1] >> 4));
-        out[encoded + 3] = (uint8_t)(((comm->payload[1] & 0b00001111U) << 4) | comm->fcom1);
-        out[encoded + 4] = (uint8_t)((comm->icom2 << 4) | (comm->payload[2] >> 4));
-        out[encoded + 5] = (uint8_t)(((comm->payload[2] & 0b00001111U) << 4) | comm->fcom2);
+        out[encoded] = ((comm->icom0 << 4) | (comm->payload[0] >> 4));
+        out[encoded + 1] = (((comm->payload[0] & 0b00001111U) << 4) | comm->fcom0);
+        out[encoded + 2] = ((comm->icom1 << 4) | (comm->payload[1] >> 4));
+        out[encoded + 3] = (((comm->payload[1] & 0b00001111U) << 4) | comm->fcom1);
+        out[encoded + 4] = ((comm->icom2 << 4) | (comm->payload[2] >> 4));
+        out[encoded + 5] = (((comm->payload[2] & 0b00001111U) << 4) | comm->fcom2);
 
         encoded += prv_ltc6810_2_api_pec_calc(out + encoded, LTC6810_2_REG_BYTE_COUNT);
     }
