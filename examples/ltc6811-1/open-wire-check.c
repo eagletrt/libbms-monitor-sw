@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "eagletrt.h"
 #include "eagletrt-api.h"
 #include "ltc6811-1-api.h"
 #include "ltc6811-1.h"
@@ -13,6 +14,7 @@
 #define UART_BUFFER_SIZE (1024U)
 
 UART_HandleTypeDef huart1;
+SPI_HandleTypeDef hspi1;
 
 /*! Function definitions to suppress "is not implemented and will always fail" warning */
 void _close(void) {
@@ -27,6 +29,12 @@ void _read(void) {
 void _write(void) {
 }
 
+/*!
+ * \brief           HAL_UART_Transmit wrapper with a printf-like prototype.
+ *
+ * \param[in]       fmt A pointer to the format string.
+ * \param[in]       ... Variadic arguments.
+ */
 void uart_printf(const char *fmt, ...) {
     static uint8_t buffer[UART_BUFFER_SIZE];
     va_list args;
@@ -40,40 +48,33 @@ void uart_printf(const char *fmt, ...) {
     }
 }
 
-/*
- * This function does not actually send the payload since the transmission
- * does depend on the type of hardware used to communicate with the IC
- */
-void send_payload_dummy(uint8_t *payload, const size_t len) {
-    EAGLETRT_API_UNUSED(payload);
-    uart_printf("[INFO]: Sending %lu bytes of payload\n", len);
-}
-
 int main(void) {
-    /* The first thing needed is to declare and initialize the handler structure */
+    /*! The first thing needed is to declare and initialize the handler structure */
     struct Ltc68111Handler handler;
+
+    HAL_Init();
     ltc6811_1_init(&handler, LTC_COUNT);
 
-    /*
+    /*!
      * The ADOW commands can be used to check for any open wires between the ADCs
-     * of the LTC6811 and the external cells.
+     * of the LTC6811-1 and the external cells.
      * The algorithm used to check for open wire is the following:
-     *     1. Run the 12-cell command ADOW with PUP=1 at least twice and read
+     *     1. Run the 6-cell command ADOW with PUP=1 at least twice and read
      *        and store all cell voltages
-     *     2. Run the 12-cell command ADOW with PUP=0 at least twice and read
+     *     2. Run the 6-cell command ADOW with PUP=0 at least twice and read
      *        and store all cell voltages
      *     3. Take the difference between the pull-up and pull-down measurements
-     *        in the above steps for cells from 2 to 12 (i.e. delta[i] = pup[i] - pud[i])
-     *     4. For all values from 1 to 11:
+     *        in the above steps for cells from 2 to 6 (i.e. delta[i] = pup[i] - pud[i])
+     *     4. For all values from 1 to 5:
      *         - If delta[i + 1] < -400mV then C(i) is open
      *         - If pup(1) = 0.0000 then C(0) is open
-     *         - If pud(12) = 0.0000 then C(12) is open
+     *         - If pud(6) = 0.0000 then C(6) is open
      */
 
-    /* Step 1. */
+    /*! Step 1. */
     for (size_t step = 0; step < 2; ++step) {
-        /*
-         * To start the conversion it is needed to encode and send the ADOW command`
+        /*!
+         * To start the conversion it is needed to encode and send the ADOW command
          * providing the buffer of bytes to fill out and the necessary parameters,
          * in particular the 'PUP_ACTIVE' one that starts the conversion in Pull-up mode.
          *
@@ -89,13 +90,13 @@ int main(void) {
             LTC6811_1_CH_ALL,
             adow_pup);
         if (adow_pup_byte_count == LTC6811_1_POLL_BUFFER_SIZE) {
-            send_payload_dummy(adow_pup, adow_pup_byte_count);
+            HAL_SPI_Transmit(&hspi1, adow_pup, adow_pup_byte_count, 10U);
         } else {
-            uart_printf("[ERROR]: ADOW with Pull-up encode error on step %lu\n", step + 1);
+            uart_printf("[ERROR]: ADOW with Pull-up encode error on step %u\n", step + 1);
         }
     }
 
-    /*
+    /*!
      * To ensure that the conversion has ended it is needed to either:
      *     1. Wait enough time to be sure that it has ended
      *     2. Poll for the conversion status
@@ -107,14 +108,14 @@ int main(void) {
     uint8_t poll[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
     const size_t poll_byte_size = ltc6811_1_pladc_encode_broadcast(&handler, poll);
     if (poll_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
-        send_payload_dummy(poll, poll_byte_size);
+        HAL_SPI_Transmit(&hspi1, poll, poll_byte_size, 10U);
     } else {
         uart_printf("[ERROR]: Poll encoding error");
     }
 
-    /*
+    /*!
      * Once the command is issued to the IC the response can be compared using
-     * the 'pladc_check' function to verify if the conversion has ended or not.
+     * the 'pladc_is_completed' function to verify if the conversion has ended or not.
      *
      * In this example we already give the expected value once the conversion
      * has completed, in reality this value is given by the ICs themselfs.
@@ -130,7 +131,7 @@ int main(void) {
         uart_printf("[WARNING]: Conversion has not completed yet\n");
     }
 
-    /*
+    /*!
      * After the conversion has completed it can be possible to read all the
      * voltages by issuing multiple read commands, one for each register.
      * Only one single register at a time can be read even if all the ICs sends
@@ -142,7 +143,7 @@ int main(void) {
      * the correctness of the operations.
      */
     for (enum Ltc68111Cvxr reg = 0; reg < LTC6811_1_CVXR_COUNT; ++reg) {
-        /*
+        /*!
          * Same as before, the command to read the voltages is encoded and sent
          * with the register as additional parameter.
          */
@@ -152,12 +153,12 @@ int main(void) {
             reg,
             read);
         if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
-            send_payload_dummy(read, read_byte_count);
+            HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
         } else {
             uart_printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
         }
 
-        /*
+        /*!
          * After issuing the read command the voltages can be received and decoded.
          * In this example a wrong payload is directly defined below, in reality it
          * should be read from the IC itself.
@@ -176,16 +177,16 @@ int main(void) {
         }
     }
 
-    /* Step 2. */
-    /*
+    /*! Step 2. */
+    /*!
      * This step works in the same way as the first one with the only difference
      * that the ADOW command has to be called with 'PUP_INACTIVE'.
-     * No code is provided since it is the almost same as the one above.
+     * No code is provided since it is almost the same as the one above.
      */
 
-    /* Step 3. */
-    /*
-     * The third step is to calculate the delta from the two previous measurements
+    /*! Step 3. */
+    /*!
+     * The third step is to calculate the delta from the two previous measurements.
      * In this example the values are all set to 0 but they should be read and
      * filled by the previous steps.
      */
@@ -198,23 +199,23 @@ int main(void) {
         }
     }
 
-    /* Step 4. */
-    /*
-     * The fourth step it is the actual check for any open wire as described
+    /*! Step 4. */
+    /*!
+     * The fourth step is the actual check for any open wire as described
      * by the datasheet (and at the beginning of this example).
      * This step can be easily merged with step 3.
      */
     for (size_t ltc = 0; ltc < LTC_COUNT; ++ltc) {
         for (size_t i = 0; i < LTC6811_1_CELL_COUNT - 1; ++i) {
             if (delta[ltc][i + 1] < (-400 * 10)) {
-                uart_printf("[ERROR]: IC n°%lu, C(%lu) is open\n", ltc, i + 1);
+                uart_printf("[ERROR]: IC n°%u, C(%u) is open\n", ltc, i + 1);
             }
         }
         if (pup[ltc][0] == 0) {
-            uart_printf("[ERROR]: IC n°%lu, C(0) is open\n", ltc);
+            uart_printf("[ERROR]: IC n°%u, C(0) is open\n", ltc);
         }
         if (pud[ltc][LTC6811_1_CELL_COUNT - 1] == 0) {
-            uart_printf("[ERROR]: IC n°%lu, C(12) is open\n", ltc);
+            uart_printf("[ERROR]: IC n°%u, C(6) is open\n", ltc);
         }
     }
 

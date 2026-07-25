@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "eagletrt.h"
 #include "eagletrt-api.h"
 #include "ltc6811-1-api.h"
 #include "ltc6811-1.h"
@@ -13,6 +14,7 @@
 #define UART_BUFFER_SIZE (1024U)
 
 UART_HandleTypeDef huart1;
+SPI_HandleTypeDef hspi1;
 
 /*! Function definitions to suppress "is not implemented and will always fail" warning */
 void _close(void) {
@@ -27,6 +29,12 @@ void _read(void) {
 void _write(void) {
 }
 
+/*!
+ * \brief           HAL_UART_Transmit wrapper with a printf-like prototype.
+ *
+ * \param[in]       fmt A pointer to the format string.
+ * \param[in]       ... Variadic arguments.
+ */
 void uart_printf(const char *fmt, ...) {
     static uint8_t buffer[UART_BUFFER_SIZE];
     va_list args;
@@ -40,15 +48,6 @@ void uart_printf(const char *fmt, ...) {
     }
 }
 
-/*
- * This function does not actually send the payload since the transmission
- * does depend on the type of hardware used to communicate with the IC
- */
-void send_payload_dummy(uint8_t *payload, const size_t len) {
-    EAGLETRT_API_UNUSED(payload);
-    uart_printf("[INFO]: Sending %lu bytes of payload\n", len);
-}
-
 int main(void) {
     /* The first thing needed is to declare and initialize the handler structure */
     struct Ltc68111Handler handler;
@@ -60,7 +59,7 @@ int main(void) {
      */
     struct Ltc68111Cfgr read_config = { 0 };
     struct Ltc68111Cfgr write_config = {
-        .GPIO = 0b11111,
+        .GPIO = 0b1111,
         .REFON = 1U,
     };
 
@@ -76,7 +75,7 @@ int main(void) {
     uint8_t write[LTC6811_1_WRITE_BUFFER_SIZE(LTC_COUNT)] = { 0 };
     const size_t write_byte_count = ltc6811_1_wrcfg_encode_broadcast(&handler, &write_config, write);
     if (write_byte_count == LTC6811_1_WRITE_BUFFER_SIZE(LTC_COUNT)) {
-        send_payload_dummy(write, write_byte_count);
+        HAL_SPI_Transmit(&hspi1, write, write_byte_count, 10U);
     } else {
         uart_printf("[ERROR]: Write encoding error\n");
     }
@@ -93,7 +92,7 @@ int main(void) {
     uint8_t read[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
     const size_t read_byte_count = ltc6811_1_rdcfg_encode_broadcast(&handler, read);
     if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
-        send_payload_dummy(read, read_byte_count);
+        HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
     } else {
         uart_printf("[ERROR]: Read encoding error\n");
     }

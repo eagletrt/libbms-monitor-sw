@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "eagletrt.h"
 #include "eagletrt-api.h"
 #include "ltc6811-1-api.h"
 #include "ltc6811-1.h"
@@ -13,6 +14,7 @@
 #define UART_BUFFER_SIZE (1024U)
 
 UART_HandleTypeDef huart1;
+SPI_HandleTypeDef hspi1;
 
 /*! Function definitions to suppress "is not implemented and will always fail" warning */
 void _close(void) {
@@ -27,6 +29,12 @@ void _read(void) {
 void _write(void) {
 }
 
+/*!
+ * \brief           HAL_UART_Transmit wrapper with a printf-like prototype.
+ *
+ * \param[in]       fmt A pointer to the format string.
+ * \param[in]       ... Variadic arguments.
+ */
 void uart_printf(const char *fmt, ...) {
     static uint8_t buffer[UART_BUFFER_SIZE];
     va_list args;
@@ -38,15 +46,6 @@ void uart_printf(const char *fmt, ...) {
     if (len > 0) {
         HAL_UART_Transmit(&huart1, buffer, (uint16_t)len, HAL_MAX_DELAY);
     }
-}
-
-/*
- * This function does not actually send the payload since the transmission
- * does depend on the type of hardware used to communicate with the IC
- */
-void send_payload_dummy(uint8_t *payload, const size_t len) {
-    EAGLETRT_API_UNUSED(payload);
-    uart_printf("[INFO]: Sending %lu bytes of payload\n", len);
 }
 
 int main(void) {
@@ -74,7 +73,7 @@ int main(void) {
         LTC6811_1_CH_ALL,
         start_conversion_payload);
     if (adcv_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
-        send_payload_dummy(start_conversion_payload, adcv_byte_size);
+        HAL_SPI_Transmit(&hspi1, start_conversion_payload, adcv_byte_size, 10U);
     } else {
         uart_printf("[ERROR]: Start conversion encoding error");
     }
@@ -91,14 +90,14 @@ int main(void) {
     uint8_t poll[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
     const size_t poll_byte_size = ltc6811_1_pladc_encode_broadcast(&handler, poll);
     if (poll_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
-        send_payload_dummy(poll, poll_byte_size);
+        HAL_SPI_Transmit(&hspi1, poll, poll_byte_size, 10U);
     } else {
         uart_printf("[ERROR]: Poll encoding error");
     }
 
     /*
      * Once the command is issued to the IC the response can be compared using
-     * the 'pladc_check' function to verify if the conversion has ended or not.
+     * the 'pladc_is_completed' function to verify if the conversion has ended or not.
      *
      * In this example we already give the expected value once the conversion
      * has completed, in reality this value is given by the ICs themselfs.
@@ -136,7 +135,7 @@ int main(void) {
             reg,
             read);
         if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
-            send_payload_dummy(read, read_byte_count);
+            HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
         } else {
             uart_printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
         }
