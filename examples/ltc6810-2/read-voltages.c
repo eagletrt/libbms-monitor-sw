@@ -73,7 +73,9 @@ int main(void) {
         LTC6810_2_CH_ALL,
         start_conversion_payload);
     if (adcv_byte_size == LTC6810_2_POLL_BUFFER_SIZE) {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, start_conversion_payload, adcv_byte_size, 10U);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
     } else {
         uart_printf("[ERROR]: Start conversion encoding error");
     }
@@ -90,7 +92,9 @@ int main(void) {
     uint8_t poll[LTC6810_2_POLL_BUFFER_SIZE] = { 0 };
     const size_t poll_byte_size = ltc6810_2_api_pladc_encode_broadcast(&handler, poll);
     if (poll_byte_size == LTC6810_2_POLL_BUFFER_SIZE) {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, poll, poll_byte_size, 10U);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
     } else {
         uart_printf("[ERROR]: Poll encoding error");
     }
@@ -135,7 +139,9 @@ int main(void) {
             reg,
             read);
         if (read_byte_count == LTC6810_2_READ_BUFFER_SIZE) {
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
             HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
         } else {
             uart_printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
         }

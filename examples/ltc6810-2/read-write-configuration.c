@@ -75,7 +75,9 @@ int main(void) {
     uint8_t write[LTC6810_2_WRITE_BUFFER_SIZE(LTC_COUNT)] = { 0 };
     const size_t write_byte_count = ltc6810_2_api_wrcfg_encode_broadcast(&handler, &write_config, write);
     if (write_byte_count == LTC6810_2_WRITE_BUFFER_SIZE(LTC_COUNT)) {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, write, write_byte_count, 10U);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
     } else {
         uart_printf("[ERROR]: Write encoding error\n");
     }
@@ -92,7 +94,9 @@ int main(void) {
     uint8_t read[LTC6810_2_READ_BUFFER_SIZE] = { 0 };
     const size_t read_byte_count = ltc6810_2_api_rdcfg_encode_broadcast(&handler, read);
     if (read_byte_count == LTC6810_2_READ_BUFFER_SIZE) {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
     } else {
         uart_printf("[ERROR]: Read encoding error\n");
     }

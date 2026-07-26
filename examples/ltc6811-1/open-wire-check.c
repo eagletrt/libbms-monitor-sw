@@ -90,7 +90,9 @@ int main(void) {
             LTC6811_1_CH_ALL,
             adow_pup);
         if (adow_pup_byte_count == LTC6811_1_POLL_BUFFER_SIZE) {
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
             HAL_SPI_Transmit(&hspi1, adow_pup, adow_pup_byte_count, 10U);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
         } else {
             uart_printf("[ERROR]: ADOW with Pull-up encode error on step %u\n", step + 1);
         }
@@ -108,7 +110,9 @@ int main(void) {
     uint8_t poll[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
     const size_t poll_byte_size = ltc6811_1_pladc_encode_broadcast(&handler, poll);
     if (poll_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, poll, poll_byte_size, 10U);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
     } else {
         uart_printf("[ERROR]: Poll encoding error");
     }
@@ -153,7 +157,9 @@ int main(void) {
             reg,
             read);
         if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
             HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
         } else {
             uart_printf("[ERROR]: Read encoding error for the register n°%u\n", reg);
         }
