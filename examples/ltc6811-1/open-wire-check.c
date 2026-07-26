@@ -59,16 +59,16 @@ int main(void) {
      * The ADOW commands can be used to check for any open wires between the ADCs
      * of the LTC6811-1 and the external cells.
      * The algorithm used to check for open wire is the following:
-     *     1. Run the 6-cell command ADOW with PUP=1 at least twice and read
+     *     1. Run the 12-cell command ADOW with PUP=1 at least twice and read
      *        and store all cell voltages
-     *     2. Run the 6-cell command ADOW with PUP=0 at least twice and read
+     *     2. Run the 12-cell command ADOW with PUP=0 at least twice and read
      *        and store all cell voltages
      *     3. Take the difference between the pull-up and pull-down measurements
-     *        in the above steps for cells from 2 to 6 (i.e. delta[i] = pup[i] - pud[i])
-     *     4. For all values from 1 to 5:
+     *        in the above steps for cells from 2 to 12 (i.e. delta[i] = pup[i] - pud[i])
+     *     4. For all values from 1 to 11:
      *         - If delta[i + 1] < -400mV then C(i) is open
      *         - If pup(1) = 0.0000 then C(0) is open
-     *         - If pud(6) = 0.0000 then C(6) is open
+     *         - If pud(12) = 0.0000 then C(12) is open
      */
 
     /*! Step 1. */

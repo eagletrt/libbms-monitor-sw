@@ -59,7 +59,7 @@ int main(void) {
      */
     struct Ltc68111Cfgr read_config = { 0 };
     struct Ltc68111Cfgr write_config = {
-        .GPIO = 0b1111,
+        .GPIO = 0b11111,
         .REFON = 1U,
     };
 
