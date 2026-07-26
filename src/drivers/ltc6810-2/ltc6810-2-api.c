@@ -244,7 +244,7 @@ size_t ltc6810_2_api_wrcfg_encode_broadcast(const struct Ltc68102Handler *handle
         out[encoded + 1] = cfg->VUV;
         out[encoded + 2] = ((cfg->VOV << 4U) | (cfg->VUV >> 8U));
         out[encoded + 3] = (cfg->VOV >> 4U);
-        out[encoded + 4] = (((cfg->DCC0 & 1U) << 7U) | ((cfg->MCAL & 1U) << 6U) | (cfg->DCC & 0b00111111U));
+        out[encoded + 4] = ((cfg->DCC & 0b00000001) << 7U) | ((cfg->MCAL & 1U) << 6U) | ((cfg->DCC & 0b01111110U) >> 1);
         out[encoded + 5] = ((cfg->DCTO << 4U) | (cfg->SCONV << 3U) | (cfg->FDRF << 2U) | (cfg->DIS_RED << 1U) | cfg->DTMEN);
 
         encoded += prv_ltc6810_2_api_pec_calc(out + encoded, LTC6810_2_REG_BYTE_COUNT);
@@ -277,7 +277,7 @@ size_t ltc6810_2_api_rdcfg_decode_broadcast(const struct Ltc68102Handler *handle
             out[i].VOV = (((payload[off + 2] & 0b11110000U) >> 4U) | (payload[off + 3] << 4U));
             out[i].DCC = payload[off + 4] & 0b00111111U;
             out[i].MCAL = (payload[off + 4] >> 6) & 0b00000001U;
-            out[i].DCC0 = (payload[off + 4] >> 7) & 0b00000001U;
+            out[i].DCC = ((payload[off + 4] & 0b00111111U) << 1) | ((payload[off + 4] >> 7) & 0b00000001);
             out[i].DTMEN = payload[off + 5] & 0b00000001U;
             out[i].DIS_RED = (payload[off + 5] >> 1) & 0b00000001U;
             out[i].FDRF = (payload[off + 5] >> 2) & 0b00000001U;

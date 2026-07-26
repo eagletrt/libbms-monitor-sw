@@ -456,9 +456,8 @@ struct [[gnu::packed]] Ltc68102Cfgr {
     uint8_t RSVD : 1;    /*!< CFGR0[7] Reserved */
     uint16_t VUV : 12;   /*!< CFGR1 + CFGR2[3:0] Undervoltage comparison voltage */
     uint16_t VOV : 12;   /*!< CFGR2[7:4] + CFGR3 Overvoltage comparison voltage */
-    uint8_t DCC : 6;     /*!< CFGR4[5:0] Discharge cells 1..6 (DCC1..DCC6) */
+    uint8_t DCC : 7;     /*!< CFGR4[5:0-7] Discharge cells 1..6 (DCC1..DCC6); 7th cell (DCC0) is optional */
     uint8_t MCAL : 1;    /*!< CFGR4[6] Multi-calibration enable */
-    uint8_t DCC0 : 1;    /*!< CFGR4[7] Discharge 7th cell / S0 (DCC0) */
     uint8_t DTMEN : 1;   /*!< CFGR5[0] Discharge timer monitor enable */
     uint8_t DIS_RED : 1; /*!< CFGR5[1] Disable digital redundancy check */
     uint8_t FDRF : 1;    /*!< CFGR5[2] Force digital redundancy failure */

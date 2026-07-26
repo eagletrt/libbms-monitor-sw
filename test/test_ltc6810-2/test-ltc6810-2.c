@@ -292,8 +292,7 @@ void test_ltc6810_2_api_wrcfg_encode_with_valid_configuration(void) {
         config[ltc].GPIO = 0b0101;
         config[ltc].VUV = 0b101001010101;
         config[ltc].VOV = 0b010101011010;
-        config[ltc].DCC = 0b101010;
-        config[ltc].DCC0 = 0b1;
+        config[ltc].DCC = 0b1010101;
         config[ltc].DTMEN = 0b1;
         config[ltc].FDRF = 0b1;
         config[ltc].DCTO = 0b0101;
@@ -413,8 +412,7 @@ void test_ltc6810_2_api_rdcfg_decode_with_valid_payload(void) {
         expected_config[ltc].GPIO = 0b0101;
         expected_config[ltc].VUV = 0b101001010101;
         expected_config[ltc].VOV = 0b010101011010;
-        expected_config[ltc].DCC = 0b101010;
-        expected_config[ltc].DCC0 = 0b1;
+        expected_config[ltc].DCC = 0b1010101;
         expected_config[ltc].DTMEN = 0b1;
         expected_config[ltc].FDRF = 0b1;
         expected_config[ltc].DCTO = 0b0101;
@@ -471,8 +469,7 @@ void test_ltc6810_2_api_rdcfg_decode_with_invalid_pec(void) {
             expected_config[ltc].GPIO = 0b0101;
             expected_config[ltc].VUV = 0b101001010101;
             expected_config[ltc].VOV = 0b010101011010;
-            expected_config[ltc].DCC = 0b101010;
-            expected_config[ltc].DCC0 = 0b1;
+            expected_config[ltc].DCC = 0b1010101;
             expected_config[ltc].DTMEN = 0b1;
             expected_config[ltc].FDRF = 0b1;
             expected_config[ltc].DCTO = 0b0101;
