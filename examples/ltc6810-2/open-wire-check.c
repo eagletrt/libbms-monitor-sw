@@ -5,8 +5,8 @@
 
 #include "eagletrt.h"
 #include "eagletrt-api.h"
-#include "ltc6811-1-api.h"
-#include "ltc6811-1.h"
+#include "ltc6810-2-api.h"
+#include "ltc6810-2.h"
 
 #include "stm32f4xx_hal.h" /*! Replace with your actual target header */
 
@@ -50,25 +50,25 @@ void uart_printf(const char *fmt, ...) {
 
 int main(void) {
     /*! The first thing needed is to declare and initialize the handler structure */
-    struct Ltc68111Handler handler;
+    struct Ltc68102Handler handler;
 
     HAL_Init();
-    ltc6811_1_init(&handler, LTC_COUNT);
+    ltc6810_2_api_init(&handler, LTC_COUNT);
 
     /*!
      * The ADOW commands can be used to check for any open wires between the ADCs
-     * of the LTC6811-1 and the external cells.
+     * of the LTC6810-2 and the external cells.
      * The algorithm used to check for open wire is the following:
-     *     1. Run the 12-cell command ADOW with PUP=1 at least twice and read
+     *     1. Run the 6-cell command ADOW with PUP=1 at least twice and read
      *        and store all cell voltages
-     *     2. Run the 12-cell command ADOW with PUP=0 at least twice and read
+     *     2. Run the 6-cell command ADOW with PUP=0 at least twice and read
      *        and store all cell voltages
      *     3. Take the difference between the pull-up and pull-down measurements
-     *        in the above steps for cells from 2 to 12 (i.e. delta[i] = pup[i] - pud[i])
-     *     4. For all values from 1 to 11:
+     *        in the above steps for cells from 2 to 6 (i.e. delta[i] = pup[i] - pud[i])
+     *     4. For all values from 1 to 5:
      *         - If delta[i + 1] < -400mV then C(i) is open
      *         - If pup(1) = 0.0000 then C(0) is open
-     *         - If pud(12) = 0.0000 then C(12) is open
+     *         - If pud(6) = 0.0000 then C(6) is open
      */
 
     /*! Step 1. */
@@ -81,15 +81,15 @@ int main(void) {
          * The number of encoded bytes should be compared to the expected value
          * to check for possible errors while encoding the data.
          */
-        uint8_t adow_pup[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-        const size_t adow_pup_byte_count = ltc6811_1_adow_encode_broadcast(
+        uint8_t adow_pup[LTC6810_2_POLL_BUFFER_SIZE] = { 0 };
+        const size_t adow_pup_byte_count = ltc6810_2_api_adow_encode_broadcast(
             &handler,
-            LTC6811_1_MD_7KHZ,
-            LTC6811_1_PUP_ACTIVE,
-            LTC6811_1_DCP_DISABLED,
-            LTC6811_1_CH_ALL,
+            LTC6810_2_MD_7KHZ,
+            LTC6810_2_PUP_ACTIVE,
+            LTC6810_2_DCP_DISABLED,
+            LTC6810_2_CH_ALL,
             adow_pup);
-        if (adow_pup_byte_count == LTC6811_1_POLL_BUFFER_SIZE) {
+        if (adow_pup_byte_count == LTC6810_2_POLL_BUFFER_SIZE) {
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
             HAL_SPI_Transmit(&hspi1, adow_pup, adow_pup_byte_count, 10U);
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
@@ -107,9 +107,9 @@ int main(void) {
      * works as the ADOW command seen before. It is just needed to encode and
      * send the command with the appropriate checks.
      */
-    uint8_t poll[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t poll_byte_size = ltc6811_1_pladc_encode_broadcast(&handler, poll);
-    if (poll_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
+    uint8_t poll[LTC6810_2_POLL_BUFFER_SIZE] = { 0 };
+    const size_t poll_byte_size = ltc6810_2_api_pladc_encode_broadcast(&handler, poll);
+    if (poll_byte_size == LTC6810_2_POLL_BUFFER_SIZE) {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, poll, poll_byte_size, 10U);
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
@@ -129,7 +129,7 @@ int main(void) {
      * status may cause false positives.
      */
     const uint8_t pladc_response = 0xff;
-    if (ltc6811_1_pladc_is_completed(pladc_response)) {
+    if (ltc6810_2_api_pladc_is_completed(pladc_response)) {
         uart_printf("[INFO]: Conversion has completed\n");
     } else {
         uart_printf("[WARNING]: Conversion has not completed yet\n");
@@ -146,17 +146,17 @@ int main(void) {
      * the programmer to ensure that enough time is given to the IC to ensure
      * the correctness of the operations.
      */
-    for (enum Ltc68111Cvxr reg = 0; reg < LTC6811_1_CVXR_COUNT; ++reg) {
+    for (enum Ltc68102Cvxr reg = 0; reg < LTC6810_2_CVXR_COUNT; ++reg) {
         /*!
          * Same as before, the command to read the voltages is encoded and sent
          * with the register as additional parameter.
          */
-        uint8_t read[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-        const size_t read_byte_count = ltc6811_1_rdcv_encode_broadcast(
+        uint8_t read[LTC6810_2_READ_BUFFER_SIZE] = { 0 };
+        const size_t read_byte_count = ltc6810_2_api_rdcv_encode_broadcast(
             &handler,
             reg,
             read);
-        if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
+        if (read_byte_count == LTC6810_2_READ_BUFFER_SIZE) {
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
             HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
@@ -173,10 +173,10 @@ int main(void) {
          * is not modified and the program should print an error indicating that
          * the decoded data is invalid.
          */
-        uint8_t payload[LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)] = { 1, 2, 3, 4, 5 };
-        uint16_t voltages[LTC6811_1_REG_CELL_COUNT * LTC_COUNT] = { 0 };
-        const size_t byte_count = ltc6811_1_rdcv_decode_broadcast(&handler, payload, voltages);
-        if (byte_count == LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)) {
+        uint8_t payload[LTC6810_2_DATA_BUFFER_SIZE(LTC_COUNT)] = { 1, 2, 3, 4, 5 };
+        uint16_t voltages[LTC6810_2_REG_CELL_COUNT * LTC_COUNT] = { 0 };
+        const size_t byte_count = ltc6810_2_api_rdcv_decode_broadcast(&handler, payload, voltages);
+        if (byte_count == LTC6810_2_DATA_BUFFER_SIZE(LTC_COUNT)) {
             uart_printf("[SUCCES]: Register n°%u correctly decoded\n", reg);
         } else {
             uart_printf("[ERROR]: Read decoding error for the register n°%u\n", reg);
@@ -196,11 +196,11 @@ int main(void) {
      * In this example the values are all set to 0 but they should be read and
      * filled by the previous steps.
      */
-    uint16_t pup[LTC_COUNT][LTC6811_1_CELL_COUNT] = { 0 };
-    uint16_t pud[LTC_COUNT][LTC6811_1_CELL_COUNT] = { 0 };
-    int16_t delta[LTC_COUNT][LTC6811_1_CELL_COUNT] = { 0 };
+    uint16_t pup[LTC_COUNT][LTC6810_2_CELL_COUNT] = { 0 };
+    uint16_t pud[LTC_COUNT][LTC6810_2_CELL_COUNT] = { 0 };
+    int16_t delta[LTC_COUNT][LTC6810_2_CELL_COUNT] = { 0 };
     for (size_t ltc = 0; ltc < LTC_COUNT; ++ltc) {
-        for (size_t i = 1; i < LTC6811_1_CELL_COUNT; ++i) {
+        for (size_t i = 1; i < LTC6810_2_CELL_COUNT; ++i) {
             delta[ltc][i] = pup[ltc][i] - pud[ltc][i];
         }
     }
@@ -212,7 +212,7 @@ int main(void) {
      * This step can be easily merged with step 3.
      */
     for (size_t ltc = 0; ltc < LTC_COUNT; ++ltc) {
-        for (size_t i = 0; i < LTC6811_1_CELL_COUNT - 1; ++i) {
+        for (size_t i = 0; i < LTC6810_2_CELL_COUNT - 1; ++i) {
             if (delta[ltc][i + 1] < (-400 * 10)) {
                 uart_printf("[ERROR]: IC n°%u, C(%u) is open\n", ltc, i + 1);
             }
@@ -220,7 +220,7 @@ int main(void) {
         if (pup[ltc][0] == 0) {
             uart_printf("[ERROR]: IC n°%u, C(0) is open\n", ltc);
         }
-        if (pud[ltc][LTC6811_1_CELL_COUNT - 1] == 0) {
+        if (pud[ltc][LTC6810_2_CELL_COUNT - 1] == 0) {
             uart_printf("[ERROR]: IC n°%u, C(6) is open\n", ltc);
         }
     }

@@ -6,6 +6,7 @@
     "keywords": [
         "bms-monitor",
         "ltc6811-1",
+        "ltc6810-2",
         "drivers",
         "embedded"
     ],
@@ -31,7 +32,9 @@
     ],
     "headers": [
         "ltc6811-1.h",
-        "ltc6811-1-api.h"
+        "ltc6811-1-api.h",
+        "ltc6810-2.h",
+        "ltc6810-2-api.h"
     ],
     "examples": [
         {
@@ -45,7 +48,20 @@
         {
             "name": "LTC6811-1 run Open-Wire check",
             "src": "examples/ltc6811-1/open-wire-check.c"
+        },
+        {
+            "name": "LTC6810-2 read and write configuration",
+            "src": "examples/ltc6810-2/read-write-configuration.c"
+        },
+        {
+            "name": "LTC6810-2 read all voltage registers from multiple ICs",
+            "src": "examples/ltc6810-2/read-voltages.c"
+        },
+        {
+            "name": "LTC6810-2 run Open-Wire check",
+            "src": "examples/ltc6810-2/open-wire-check.c"
         }
+        
     ],
     "export": {
         "include": [
@@ -55,7 +71,8 @@
     },
     "build": {
         "flags": [
-            "-Iinclude/drivers/ltc6811-1"
+            "-Iinclude/drivers/ltc6811-1",
+            "-Iinclude/drivers/ltc6810-2"
         ]
     }
 }

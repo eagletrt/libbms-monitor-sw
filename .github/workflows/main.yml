@@ -21,7 +21,10 @@ jobs:
         examples: [
           examples/ltc6811-1/open-wire-check.c,
           examples/ltc6811-1/read-voltages.c,
-          examples/ltc6811-1/read-write-configuration.c
+          examples/ltc6811-1/read-write-configuration.c,
+          examples/ltc6810-2/open-wire-check.c,
+          examples/ltc6810-2/read-voltages.c,
+          examples/ltc6810-2/read-write-configuration.c
         ]
 
     steps:
@@ -51,6 +54,8 @@ jobs:
             printf "platform = native\n" >> platformio.ini
             printf "lib_deps = Unity, ./\n" >> platformio.ini
             printf "build_flags =\n" >> platformio.ini
+            printf "    -std=gnu23\n" >> platformio.ini
+            printf "    -Itest/include\n" >> platformio.ini
             printf "    -DEAGLETRT_STATIC=\n" >> platformio.ini
             printf "    -DEAGLETRT_STATIC_INLINE=\n" >> platformio.ini
             echo "Created platformio.ini"
@@ -59,7 +64,7 @@ jobs:
 
       - name: Run Example
         run: |
-          pio ci -l . --exclude=src/test --exclude=src/examples -O "framework=stm32cube" ${{ matrix.examples }} -b nucleo_f446re
+          pio ci -l . --exclude=src/test --exclude=src/examples -O "framework = stm32cube"  -O "platform_packages=toolchain-gccarmnoneeabi@=1.140201.0" -O "build_flags = -std=gnu23" ${{ matrix.examples }} -b nucleo_f446re
 
   check:
     name: Static Code Analysis

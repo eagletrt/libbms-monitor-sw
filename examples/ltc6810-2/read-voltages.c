@@ -5,8 +5,8 @@
 
 #include "eagletrt.h"
 #include "eagletrt-api.h"
-#include "ltc6811-1-api.h"
-#include "ltc6811-1.h"
+#include "ltc6810-2-api.h"
+#include "ltc6810-2.h"
 
 #include "stm32f4xx_hal.h" /*! Replace with your actual target header */
 
@@ -50,8 +50,8 @@ void uart_printf(const char *fmt, ...) {
 
 int main(void) {
     /* The first thing needed is to declare and initialize the handler structure */
-    struct Ltc68111Handler handler;
-    ltc6811_1_init(&handler, LTC_COUNT);
+    struct Ltc68102Handler handler;
+    ltc6810_2_api_init(&handler, LTC_COUNT);
 
     /*
      * To read the voltages it is first needed to start the ADC conversion by
@@ -65,14 +65,14 @@ int main(void) {
      * The number of encoded bytes should be compared to the expected value
      * to check for possible errors while encoding the data.
      */
-    uint8_t start_conversion_payload[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t adcv_byte_size = ltc6811_1_adcv_encode_broadcast(
+    uint8_t start_conversion_payload[LTC6810_2_POLL_BUFFER_SIZE] = { 0 };
+    const size_t adcv_byte_size = ltc6810_2_api_adcv_encode_broadcast(
         &handler,
-        LTC6811_1_MD_27KHZ,
-        LTC6811_1_DCP_DISABLED,
-        LTC6811_1_CH_ALL,
+        LTC6810_2_MD_27KHZ,
+        LTC6810_2_DCP_DISABLED,
+        LTC6810_2_CH_ALL,
         start_conversion_payload);
-    if (adcv_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
+    if (adcv_byte_size == LTC6810_2_POLL_BUFFER_SIZE) {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, start_conversion_payload, adcv_byte_size, 10U);
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
@@ -89,9 +89,9 @@ int main(void) {
      * works as the ADCV command seen before. It is just needed to encode and
      * send the command with the appropriate checks.
      */
-    uint8_t poll[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t poll_byte_size = ltc6811_1_pladc_encode_broadcast(&handler, poll);
-    if (poll_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
+    uint8_t poll[LTC6810_2_POLL_BUFFER_SIZE] = { 0 };
+    const size_t poll_byte_size = ltc6810_2_api_pladc_encode_broadcast(&handler, poll);
+    if (poll_byte_size == LTC6810_2_POLL_BUFFER_SIZE) {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, poll, poll_byte_size, 10U);
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
@@ -111,7 +111,7 @@ int main(void) {
      * status may cause false positives.
      */
     const uint8_t pladc_response = 0xff;
-    if (ltc6811_1_pladc_is_completed(pladc_response)) {
+    if (ltc6810_2_api_pladc_is_completed(pladc_response)) {
         uart_printf("[INFO]: Conversion has completed\n");
     } else {
         uart_printf("[WARNING]: Conversion has not completed yet\n");
@@ -128,17 +128,17 @@ int main(void) {
      * the programmer to ensure that enough time is given to the IC to ensure
      * the correctness of the operations.
      */
-    for (enum Ltc68111Cvxr reg = 0; reg < LTC6811_1_CVXR_COUNT; ++reg) {
+    for (enum Ltc68102Cvxr reg = 0; reg < LTC6810_2_CVXR_COUNT; ++reg) {
         /*
          * Same as before, the command to read the voltages is encoded and sent
          * with the register as additional parameter.
          */
-        uint8_t read[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-        const size_t read_byte_count = ltc6811_1_rdcv_encode_broadcast(
+        uint8_t read[LTC6810_2_READ_BUFFER_SIZE] = { 0 };
+        const size_t read_byte_count = ltc6810_2_api_rdcv_encode_broadcast(
             &handler,
             reg,
             read);
-        if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
+        if (read_byte_count == LTC6810_2_READ_BUFFER_SIZE) {
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
             HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
@@ -155,10 +155,10 @@ int main(void) {
          * is not modified and the program should print an error indicating that
          * the decoded data is invalid.
          */
-        uint8_t payload[LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)] = { 1, 2, 3, 4, 5 };
-        uint16_t voltages[LTC6811_1_REG_CELL_COUNT * LTC_COUNT] = { 0 };
-        const size_t byte_count = ltc6811_1_rdcv_decode_broadcast(&handler, payload, voltages);
-        if (byte_count == LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)) {
+        uint8_t payload[LTC6810_2_DATA_BUFFER_SIZE(LTC_COUNT)] = { 1, 2, 3, 4, 5 };
+        uint16_t voltages[LTC6810_2_REG_CELL_COUNT * LTC_COUNT] = { 0 };
+        const size_t byte_count = ltc6810_2_api_rdcv_decode_broadcast(&handler, payload, voltages);
+        if (byte_count == LTC6810_2_DATA_BUFFER_SIZE(LTC_COUNT)) {
             uart_printf("[SUCCES]: Register n°%u correctly decoded\n", reg);
         } else {
             uart_printf("[ERROR]: Read decoding error for the register n°%u\n", reg);
