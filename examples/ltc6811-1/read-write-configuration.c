@@ -51,7 +51,7 @@ void uart_printf(const char *fmt, ...) {
 int main(void) {
     /* The first thing needed is to declare and initialize the handler structure */
     struct Ltc68111Handler handler;
-    ltc6811_1_init(&handler, LTC_COUNT);
+    ltc6811_1_api_init(&handler, LTC_COUNT);
 
     /*
      * Then it is needed to prepare the configuration structures.
@@ -73,7 +73,7 @@ int main(void) {
      * to check for possible errors while encoding the data.
      */
     uint8_t write[LTC6811_1_WRITE_BUFFER_SIZE(LTC_COUNT)] = { 0 };
-    const size_t write_byte_count = ltc6811_1_wrcfg_encode_broadcast(&handler, &write_config, write);
+    const size_t write_byte_count = ltc6811_1_api_wrcfg_encode_broadcast(&handler, &write_config, write);
     if (write_byte_count == LTC6811_1_WRITE_BUFFER_SIZE(LTC_COUNT)) {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, write, write_byte_count, 10U);
@@ -92,7 +92,7 @@ int main(void) {
      * value to check for encoding errors.
      */
     uint8_t read[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-    const size_t read_byte_count = ltc6811_1_rdcfg_encode_broadcast(&handler, read);
+    const size_t read_byte_count = ltc6811_1_api_rdcfg_encode_broadcast(&handler, read);
     if (read_byte_count == LTC6811_1_READ_BUFFER_SIZE) {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Receive(&hspi1, read, read_byte_count, 10U);
@@ -116,7 +116,7 @@ int main(void) {
      * the decoded data is invalid.
      */
     uint8_t payload[LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)] = { 1, 2, 3, 4, 5 };
-    const size_t byte_count = ltc6811_1_rdcfg_decode_broadcast(&handler, payload, &read_config);
+    const size_t byte_count = ltc6811_1_api_rdcfg_decode_broadcast(&handler, payload, &read_config);
     if (byte_count == LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)) {
         uart_printf("[SUCCESS]: Configuration correctly read\n");
     } else {

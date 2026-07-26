@@ -69,23 +69,23 @@ uint16_t cmd_pecs[] = {
 /*!
  * \brief               Declaration of internal functions. Needed to unit test
  */
-uint16_t prv_ltc6811_1_pec15(uint8_t *data, size_t len);
-size_t prv_ltc6811_1_pec_calc(uint8_t *payload, size_t len);
-bool prv_ltc6811_1_pec_is_correct(uint8_t *data, size_t len);
-size_t prv_ltc6811_1_cmd_encode(enum Ltc68111Command cmd, uint8_t *out);
-enum Ltc68111Command prv_ltc6811_1_cmd_set_md(enum Ltc68111Command cmd, enum Ltc68111Md mode);
-enum Ltc68111Command prv_ltc6811_1_cmd_set_pup(enum Ltc68111Command cmd, enum Ltc68111Pup pup);
-enum Ltc68111Command prv_ltc6811_1_cmd_set_st(enum Ltc68111Command cmd, enum Ltc68111St mode);
-enum Ltc68111Command prv_ltc6811_1_cmd_set_dcp(enum Ltc68111Command cmd, enum Ltc68111Dcp dcp);
-enum Ltc68111Command prv_ltc6811_1_cmd_set_ch(enum Ltc68111Command cmd, enum Ltc68111Ch cells);
-enum Ltc68111Command prv_ltc6811_1_cmd_set_chg(enum Ltc68111Command cmd, enum Ltc68111Chg gpios);
-enum Ltc68111Command prv_ltc6811_1_cmd_set_chst(enum Ltc68111Command cmd, enum Ltc68111Chst groups);
+uint16_t prv_ltc6811_1_api_pec15(uint8_t *data, size_t len);
+size_t prv_ltc6811_1_api_pec_calc(uint8_t *payload, size_t len);
+bool prv_ltc6811_1_api_pec_is_correct(uint8_t *data, size_t len);
+size_t prv_ltc6811_1_api_cmd_encode(enum Ltc68111Command cmd, uint8_t *out);
+enum Ltc68111Command prv_ltc6811_1_api_cmd_set_md(enum Ltc68111Command cmd, enum Ltc68111Md mode);
+enum Ltc68111Command prv_ltc6811_1_api_cmd_set_pup(enum Ltc68111Command cmd, enum Ltc68111Pup pup);
+enum Ltc68111Command prv_ltc6811_1_api_cmd_set_st(enum Ltc68111Command cmd, enum Ltc68111St mode);
+enum Ltc68111Command prv_ltc6811_1_api_cmd_set_dcp(enum Ltc68111Command cmd, enum Ltc68111Dcp dcp);
+enum Ltc68111Command prv_ltc6811_1_api_cmd_set_ch(enum Ltc68111Command cmd, enum Ltc68111Ch cells);
+enum Ltc68111Command prv_ltc6811_1_api_cmd_set_chg(enum Ltc68111Command cmd, enum Ltc68111Chg gpios);
+enum Ltc68111Command prv_ltc6811_1_api_cmd_set_chst(enum Ltc68111Command cmd, enum Ltc68111Chst groups);
 
 #define LTC6811_1_COUNT (3U)
 struct Ltc68111Handler ltc6811_1;
 
 void setUp(void) {
-    ltc6811_1_init(&ltc6811_1, LTC6811_1_COUNT);
+    ltc6811_1_api_init(&ltc6811_1, LTC6811_1_COUNT);
 }
 
 void tearDown(void) {
@@ -145,7 +145,7 @@ void test_pec_calculation_with_valid_payload(void) {
     uint8_t payload[] = { 0x01, 0x20, 0x34, 0xaa, 0xff, 0x00 };
     size_t payload_length = sizeof(payload) / sizeof(payload[0]);
     uint16_t expected_pec = 0x4eaa;
-    uint16_t pec = prv_ltc6811_1_pec15(payload, payload_length);
+    uint16_t pec = prv_ltc6811_1_api_pec15(payload, payload_length);
     TEST_ASSERT_EQUAL_UINT16(expected_pec, pec);
 }
 
@@ -157,7 +157,7 @@ void test_pec_calculation_with_zero_length(void) {
     uint8_t payload[] = { 0x00 };
     size_t payload_length = 0;
     uint16_t expected_pec = 0x20; // 32
-    uint16_t pec = prv_ltc6811_1_pec15(payload, payload_length);
+    uint16_t pec = prv_ltc6811_1_api_pec15(payload, payload_length);
     TEST_ASSERT_EQUAL_UINT16(expected_pec, pec);
 }
 
@@ -166,7 +166,7 @@ void test_pec_calculation_and_join_with_valid_payload(void) {
     uint8_t payload[PAYLOAD_LENGTH] = { 0xf5, 0x15, 0x46, 0x99, 0xe2, 0x15 };
     size_t payload_length = PAYLOAD_LENGTH - LTC6811_1_PEC_BYTE_COUNT;
     uint8_t expected_payload[PAYLOAD_LENGTH] = { 0xf5, 0x15, 0x46, 0x99, 0xe2, 0x15, 0x12, 0x1e };
-    size_t byte_count = prv_ltc6811_1_pec_calc(payload, payload_length);
+    size_t byte_count = prv_ltc6811_1_api_pec_calc(payload, payload_length);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(PAYLOAD_LENGTH, byte_count, "Payload byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_payload, payload, PAYLOAD_LENGTH, "Payload data do not match");
@@ -181,7 +181,7 @@ void test_pec_calculation_and_join_with_zero_length(void) {
     uint8_t payload[LTC6811_1_PEC_BYTE_COUNT] = { 0 };
     size_t payload_length = 0;
     uint8_t expected_payload[LTC6811_1_PEC_BYTE_COUNT] = { 0x00, 0x20 };
-    size_t byte_count = prv_ltc6811_1_pec_calc(payload, payload_length);
+    size_t byte_count = prv_ltc6811_1_api_pec_calc(payload, payload_length);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(LTC6811_1_PEC_BYTE_COUNT, byte_count, "Payload byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_payload, payload, LTC6811_1_PEC_BYTE_COUNT, "Payload data do not match");
 }
@@ -189,14 +189,14 @@ void test_pec_calculation_and_join_with_zero_length(void) {
 void test_pec_is_correct_with_matching_pec(void) {
 #define PAYLOAD_LENGTH (6 + LTC6811_1_PEC_BYTE_COUNT)
     uint8_t payload[PAYLOAD_LENGTH] = { 0xf5, 0x15, 0x46, 0x99, 0xe2, 0x15, 0x12, 0x1e };
-    TEST_ASSERT_TRUE(prv_ltc6811_1_pec_is_correct(payload, PAYLOAD_LENGTH));
+    TEST_ASSERT_TRUE(prv_ltc6811_1_api_pec_is_correct(payload, PAYLOAD_LENGTH));
 #undef PAYLOAD_LENGTH
 }
 
 void test_pec_is_correct_with_non_matching_pec(void) {
 #define PAYLOAD_LENGTH (6 + LTC6811_1_PEC_BYTE_COUNT)
     uint8_t payload[PAYLOAD_LENGTH] = { 0x01, 0x20, 0x34, 0xaa, 0xff, 0x00, 0x69, 0x69 };
-    TEST_ASSERT_FALSE(prv_ltc6811_1_pec_is_correct(payload, PAYLOAD_LENGTH));
+    TEST_ASSERT_FALSE(prv_ltc6811_1_api_pec_is_correct(payload, PAYLOAD_LENGTH));
 #undef PAYLOAD_LENGTH
 }
 
@@ -224,7 +224,7 @@ void test_cmd_encode_with_valid_command(void) {
         [3] = cmd_pecs[LTC6811_1_CMD_CVST] & 0xff
     };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_CVST, result);
+    size_t byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_CVST, result);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, byte_count, "Payload byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Payload data do not match");
 #undef BUFFER_LENGTH
@@ -232,43 +232,43 @@ void test_cmd_encode_with_valid_command(void) {
 
 void test_cmd_set_md_with_invalid_mode(void) {
     enum Ltc68111Command expected_cmd = LTC6811_1_CMD_ADCV;
-    enum Ltc68111Command cmd = prv_ltc6811_1_cmd_set_md(LTC6811_1_CMD_ADCV, LTC6811_1_MD_COUNT);
+    enum Ltc68111Command cmd = prv_ltc6811_1_api_cmd_set_md(LTC6811_1_CMD_ADCV, LTC6811_1_MD_COUNT);
     TEST_ASSERT_EQUAL_HEX(expected_cmd, cmd);
 }
 
 void test_cmd_set_pup_with_invalid_pullup_pulldown(void) {
     enum Ltc68111Command expected_cmd = LTC6811_1_CMD_ADOW;
-    enum Ltc68111Command cmd = prv_ltc6811_1_cmd_set_pup(LTC6811_1_CMD_ADOW, LTC6811_1_PUP_COUNT);
+    enum Ltc68111Command cmd = prv_ltc6811_1_api_cmd_set_pup(LTC6811_1_CMD_ADOW, LTC6811_1_PUP_COUNT);
     TEST_ASSERT_EQUAL_HEX(expected_cmd, cmd);
 }
 
 void test_cmd_set_st_with_invalid_mode(void) {
     enum Ltc68111Command expected_cmd = LTC6811_1_CMD_CVST;
-    enum Ltc68111Command cmd = prv_ltc6811_1_cmd_set_st(LTC6811_1_CMD_CVST, LTC6811_1_ST_COUNT);
+    enum Ltc68111Command cmd = prv_ltc6811_1_api_cmd_set_st(LTC6811_1_CMD_CVST, LTC6811_1_ST_COUNT);
     TEST_ASSERT_EQUAL_HEX(expected_cmd, cmd);
 }
 
 void test_cmd_set_dcp_with_invalid_discharge_option(void) {
     enum Ltc68111Command expected_cmd = LTC6811_1_CMD_ADOL;
-    enum Ltc68111Command cmd = prv_ltc6811_1_cmd_set_dcp(LTC6811_1_CMD_ADOL, LTC6811_1_DCP_COUNT);
+    enum Ltc68111Command cmd = prv_ltc6811_1_api_cmd_set_dcp(LTC6811_1_CMD_ADOL, LTC6811_1_DCP_COUNT);
     TEST_ASSERT_EQUAL_HEX(expected_cmd, cmd);
 }
 
 void test_cmd_set_ch_with_invalid_cell(void) {
     enum Ltc68111Command expected_cmd = LTC6811_1_CMD_ADCV;
-    enum Ltc68111Command cmd = prv_ltc6811_1_cmd_set_ch(LTC6811_1_CMD_ADCV, LTC6811_1_CH_COUNT);
+    enum Ltc68111Command cmd = prv_ltc6811_1_api_cmd_set_ch(LTC6811_1_CMD_ADCV, LTC6811_1_CH_COUNT);
     TEST_ASSERT_EQUAL_HEX(expected_cmd, cmd);
 }
 
 void test_cmd_set_chg_with_invalid_gpio(void) {
     enum Ltc68111Command expected_cmd = LTC6811_1_CMD_ADAX;
-    enum Ltc68111Command cmd = prv_ltc6811_1_cmd_set_chg(LTC6811_1_CMD_ADAX, LTC6811_1_CHG_COUNT);
+    enum Ltc68111Command cmd = prv_ltc6811_1_api_cmd_set_chg(LTC6811_1_CMD_ADAX, LTC6811_1_CHG_COUNT);
     TEST_ASSERT_EQUAL_HEX(expected_cmd, cmd);
 }
 
 void test_cmd_set_chst_with_invalid_status(void) {
     enum Ltc68111Command expected_cmd = LTC6811_1_CMD_ADSTAT;
-    enum Ltc68111Command cmd = prv_ltc6811_1_cmd_set_chst(LTC6811_1_CMD_ADSTAT, LTC6811_1_CHST_COUNT);
+    enum Ltc68111Command cmd = prv_ltc6811_1_api_cmd_set_chst(LTC6811_1_CMD_ADSTAT, LTC6811_1_CHST_COUNT);
     TEST_ASSERT_EQUAL_HEX(expected_cmd, cmd);
 }
 
@@ -280,17 +280,17 @@ void test_cmd_set_chst_with_invalid_status(void) {
  */
 
 void test_init_with_valid_parameters(void) {
-    ltc6811_1_init(&ltc6811_1, LTC6811_1_COUNT);
+    ltc6811_1_api_init(&ltc6811_1, LTC6811_1_COUNT);
     TEST_ASSERT_EQUAL_size_t(LTC6811_1_COUNT, ltc6811_1.count);
 }
 
 void test_init_with_null_handler(void) {
-    ltc6811_1_init(NULL, LTC6811_1_COUNT);
+    ltc6811_1_api_init(NULL, LTC6811_1_COUNT);
     TEST_PASS();
 }
 
 void test_init_with_zero_count(void) {
-    ltc6811_1_init(&ltc6811_1, 0);
+    ltc6811_1_api_init(&ltc6811_1, 0);
     TEST_ASSERT_GREATER_THAN_size_t(0, ltc6811_1.count);
 }
 
@@ -317,7 +317,7 @@ void test_wrcfg_encode_with_valid_configuration(void) {
         config[ltc].DCC = 0b010110101010;
         config[ltc].DCTO = 0b0101;
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRCFGA, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRCFGA, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
@@ -327,11 +327,11 @@ void test_wrcfg_encode_with_valid_configuration(void) {
         expected[reverse_index + 3] = 0b01010101;
         expected[reverse_index + 4] = 0b10101010;
         expected[reverse_index + 5] = 0b01010101;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrcfg_encode_broadcast(&ltc6811_1, config, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcfg_encode_broadcast(&ltc6811_1, config, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -347,16 +347,16 @@ void test_wrcfg_encode_encoded_payload_reverse_order_with_valid_configuration(vo
     for (size_t ltc = 0; ltc < LTC6811_1_COUNT; ++ltc) {
         config[ltc].DCTO = ltc;
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRCFGA, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRCFGA, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
         expected[reverse_index + 5] = ltc << 4;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrcfg_encode_broadcast(&ltc6811_1, config, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcfg_encode_broadcast(&ltc6811_1, config, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -368,7 +368,7 @@ void test_wrcfg_encode_with_null_handler(void) {
     struct Ltc68111Cfgr config[LTC6811_1_COUNT] = { 0 };
     uint8_t expected[BUFFER_LENGTH] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrcfg_encode_broadcast(NULL, config, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcfg_encode_broadcast(NULL, config, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -379,7 +379,7 @@ void test_wrcfg_encode_with_null_configuration(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t expected[BUFFER_LENGTH] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrcfg_encode_broadcast(&ltc6811_1, NULL, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcfg_encode_broadcast(&ltc6811_1, NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -389,7 +389,7 @@ void test_wrcfg_encode_with_null_configuration(void) {
 void test_wrcfg_encode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     struct Ltc68111Cfgr config[LTC6811_1_COUNT] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrcfg_encode_broadcast(&ltc6811_1, config, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcfg_encode_broadcast(&ltc6811_1, config, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 #undef BUFFER_LENGTH
@@ -406,7 +406,7 @@ void test_rdcfg_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t expected[BUFFER_LENGTH] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t encoded_byte_count = ltc6811_1_rdcfg_encode_broadcast(NULL, result);
+    size_t encoded_byte_count = ltc6811_1_api_rdcfg_encode_broadcast(NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -414,7 +414,7 @@ void test_rdcfg_encode_with_null_handler(void) {
 }
 
 void test_rdcfg_encode_with_null_output_array(void) {
-    size_t encoded_byte_count = ltc6811_1_rdcfg_encode_broadcast(&ltc6811_1, NULL);
+    size_t encoded_byte_count = ltc6811_1_api_rdcfg_encode_broadcast(&ltc6811_1, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 }
 
@@ -441,10 +441,10 @@ void test_rdcfg_decode_with_valid_payload(void) {
         payload[expected_byte_count + 3] = 0b01010101;
         payload[expected_byte_count + 4] = 0b10101010;
         payload[expected_byte_count + 5] = 0b01010101;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdcfg_decode_broadcast(&ltc6811_1, payload, config);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcfg_decode_broadcast(&ltc6811_1, payload, config);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_config, config, sizeof(config[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -462,10 +462,10 @@ void test_rdcfg_decode_decoded_payload_same_order_with_valid_configuration(void)
         expected_config[ltc].DCTO = ltc;
 
         payload[expected_byte_count + 5] = ltc << 4U;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdcfg_decode_broadcast(&ltc6811_1, payload, config);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcfg_decode_broadcast(&ltc6811_1, payload, config);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_config, config, sizeof(config[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -497,13 +497,13 @@ void test_rdcfg_decode_with_invalid_pec(void) {
         payload[expected_byte_count + 3] = 0b01010101;
         payload[expected_byte_count + 4] = 0b10101010;
         payload[expected_byte_count + 5] = 0b01010101;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
     // Set PEC of the first IC to an invalid value
     const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     payload[6] = payload[7] = 0;
 
-    const size_t decoded_byte_count = ltc6811_1_rdcfg_decode_broadcast(&ltc6811_1, payload, config);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcfg_decode_broadcast(&ltc6811_1, payload, config);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count - payload_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected_config[0], &config[0], sizeof(config[0]), "Payload with wrong PEC was decoded");
@@ -517,7 +517,7 @@ void test_rdcfg_decode_with_null_handler(void) {
     struct Ltc68111Cfgr config[LTC6811_1_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcfg_decode_broadcast(NULL, payload, config);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcfg_decode_broadcast(NULL, payload, config);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_config, config, sizeof(config[0]), LTC6811_1_COUNT, "Decoded configuration has changed");
@@ -528,7 +528,7 @@ void test_rdcfg_decode_with_null_payload(void) {
     struct Ltc68111Cfgr expected_config[LTC6811_1_COUNT] = { 0 };
     struct Ltc68111Cfgr config[LTC6811_1_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcfg_decode_broadcast(&ltc6811_1, NULL, config);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcfg_decode_broadcast(&ltc6811_1, NULL, config);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_config, config, sizeof(config[0]), LTC6811_1_COUNT, "Decoded configuration has changed");
@@ -538,7 +538,7 @@ void test_rdcfg_decode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_DATA_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcfg_decode_broadcast(&ltc6811_1, payload, NULL);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcfg_decode_broadcast(&ltc6811_1, payload, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
 #undef BUFFER_LENGTH
@@ -556,7 +556,7 @@ void test_rdcv_encode_with_null_handler(void) {
     uint8_t expected_payload[BUFFER_LENGTH] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    size_t byte_count = ltc6811_1_rdcv_encode_broadcast(NULL, LTC6811_1_CVAR, payload);
+    size_t byte_count = ltc6811_1_api_rdcv_encode_broadcast(NULL, LTC6811_1_CVAR, payload);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0, byte_count, "Encoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_payload, payload, BUFFER_LENGTH, "Encoded payload data do not match");
@@ -564,7 +564,7 @@ void test_rdcv_encode_with_null_handler(void) {
 }
 
 void test_rdcv_encode_with_null_output_array(void) {
-    size_t byte_count = ltc6811_1_rdcv_encode_broadcast(&ltc6811_1, LTC6811_1_CVAR, NULL);
+    size_t byte_count = ltc6811_1_api_rdcv_encode_broadcast(&ltc6811_1, LTC6811_1_CVAR, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0, byte_count, "Decoded byte count do not match");
 }
 
@@ -572,9 +572,9 @@ void test_rdcv_encode_with_invalid_register(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t expected_payload[BUFFER_LENGTH] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
-    const size_t expected_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_RDCVA, expected_payload);
+    const size_t expected_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_RDCVA, expected_payload);
 
-    size_t byte_count = ltc6811_1_rdcv_encode_broadcast(&ltc6811_1, LTC6811_1_CVXR_COUNT, payload);
+    size_t byte_count = ltc6811_1_api_rdcv_encode_broadcast(&ltc6811_1, LTC6811_1_CVXR_COUNT, payload);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, byte_count, "Encoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_payload, payload, BUFFER_LENGTH, "Encoded payload data do not match");
@@ -601,10 +601,10 @@ void test_rdcv_decode_with_valid_payload(void) {
         payload[expected_byte_count + 3] = 0xf0;
         payload[expected_byte_count + 4] = 0xf0;
         payload[expected_byte_count + 5] = 0x0f;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdcv_decode_broadcast(&ltc6811_1, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcv_decode_broadcast(&ltc6811_1, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -625,10 +625,10 @@ void test_rdcv_decode_decoded_payload_same_order_with_valid_voltages(void) {
         expected_voltages[index] = ltc;
 
         payload[expected_byte_count] = ltc;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdcv_decode_broadcast(&ltc6811_1, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcv_decode_broadcast(&ltc6811_1, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), VOLTAGE_COUNT, "Decoded payload data do not match");
@@ -658,13 +658,13 @@ void test_rdcv_decode_with_invalid_pec(void) {
         payload[expected_byte_count + 3] = 0xf0;
         payload[expected_byte_count + 4] = 0xf0;
         payload[expected_byte_count + 5] = 0x0f;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
     // Set PEC of the first IC to an invalid value
     const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     payload[6] = payload[7] = 0;
 
-    const size_t decoded_byte_count = ltc6811_1_rdcv_decode_broadcast(&ltc6811_1, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcv_decode_broadcast(&ltc6811_1, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count - payload_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(&expected_voltages[0], &voltages[0], sizeof(voltages[0]), LTC6811_1_REG_CELL_COUNT, "Payload with wrong PEC was decoded");
@@ -680,7 +680,7 @@ void test_rdcv_decode_with_null_handler(void) {
     uint16_t voltages[VOLTAGE_COUNT] = { 0 };
     uint16_t expected_voltages[VOLTAGE_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcv_decode_broadcast(NULL, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcv_decode_broadcast(NULL, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), VOLTAGE_COUNT, "Decoded payload data do not match");
@@ -693,7 +693,7 @@ void test_rdcv_decode_with_null_payload(void) {
     uint16_t voltages[VOLTAGE_COUNT] = { 0 };
     uint16_t expected_voltages[VOLTAGE_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcv_decode_broadcast(&ltc6811_1, NULL, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcv_decode_broadcast(&ltc6811_1, NULL, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), VOLTAGE_COUNT, "Decoded payload data do not match");
@@ -704,7 +704,7 @@ void test_rdcv_decode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_DATA_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcv_decode_broadcast(&ltc6811_1, payload, NULL);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcv_decode_broadcast(&ltc6811_1, payload, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
 #undef BUFFER_LENGTH
@@ -722,7 +722,7 @@ void test_rdaux_encode_with_null_handler(void) {
     uint8_t expected_payload[BUFFER_LENGTH] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    size_t byte_count = ltc6811_1_rdaux_encode_broadcast(NULL, LTC6811_1_AVAR, payload);
+    size_t byte_count = ltc6811_1_api_rdaux_encode_broadcast(NULL, LTC6811_1_AVAR, payload);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0, byte_count, "Encoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_payload, payload, BUFFER_LENGTH, "Encoded payload data do not match");
@@ -730,7 +730,7 @@ void test_rdaux_encode_with_null_handler(void) {
 }
 
 void test_rdaux_encode_with_null_output_array(void) {
-    size_t byte_count = ltc6811_1_rdaux_encode_broadcast(&ltc6811_1, LTC6811_1_AVAR, NULL);
+    size_t byte_count = ltc6811_1_api_rdaux_encode_broadcast(&ltc6811_1, LTC6811_1_AVAR, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0, byte_count, "Decoded byte count do not match");
 }
 
@@ -738,9 +738,9 @@ void test_rdaux_encode_with_invalid_register(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t expected_payload[BUFFER_LENGTH] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
-    const size_t expected_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_RDAUXA, expected_payload);
+    const size_t expected_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_RDAUXA, expected_payload);
 
-    size_t byte_count = ltc6811_1_rdaux_encode_broadcast(&ltc6811_1, LTC6811_1_AVXR_COUNT, payload);
+    size_t byte_count = ltc6811_1_api_rdaux_encode_broadcast(&ltc6811_1, LTC6811_1_AVXR_COUNT, payload);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, byte_count, "Encoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_payload, payload, BUFFER_LENGTH, "Encoded payload data do not match");
@@ -767,10 +767,10 @@ void test_rdaux_decode_with_valid_payload(void) {
         payload[expected_byte_count + 3] = 0xf0;
         payload[expected_byte_count + 4] = 0xf0;
         payload[expected_byte_count + 5] = 0x0f;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdaux_decode_broadcast(&ltc6811_1, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdaux_decode_broadcast(&ltc6811_1, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -791,10 +791,10 @@ void test_rdaux_decode_decoded_payload_same_order_with_valid_voltages(void) {
         expected_voltages[index] = ltc;
 
         payload[expected_byte_count] = ltc;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdaux_decode_broadcast(&ltc6811_1, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdaux_decode_broadcast(&ltc6811_1, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), VOLTAGE_COUNT, "Decoded payload data do not match");
@@ -824,13 +824,13 @@ void test_rdaux_decode_with_invalid_pec(void) {
         payload[expected_byte_count + 3] = 0xf0;
         payload[expected_byte_count + 4] = 0xf0;
         payload[expected_byte_count + 5] = 0x0f;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
     // Set PEC of the first IC to an invalid value
     const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     payload[6] = payload[7] = 0;
 
-    const size_t decoded_byte_count = ltc6811_1_rdaux_decode_broadcast(&ltc6811_1, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdaux_decode_broadcast(&ltc6811_1, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count - payload_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(&expected_voltages[0], &voltages[0], sizeof(voltages[0]), LTC6811_1_REG_AUX_COUNT, "Payload with wrong PEC was decoded");
@@ -846,7 +846,7 @@ void test_rdaux_decode_with_null_handler(void) {
     uint16_t voltages[VOLTAGE_COUNT] = { 0 };
     uint16_t expected_voltages[VOLTAGE_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdaux_decode_broadcast(NULL, payload, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdaux_decode_broadcast(NULL, payload, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), VOLTAGE_COUNT, "Decoded payload data do not match");
@@ -859,7 +859,7 @@ void test_rdaux_decode_with_null_payload(void) {
     uint16_t voltages[VOLTAGE_COUNT] = { 0 };
     uint16_t expected_voltages[VOLTAGE_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdaux_decode_broadcast(&ltc6811_1, NULL, voltages);
+    const size_t decoded_byte_count = ltc6811_1_api_rdaux_decode_broadcast(&ltc6811_1, NULL, voltages);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_voltages, voltages, sizeof(voltages[0]), VOLTAGE_COUNT, "Decoded payload data do not match");
@@ -870,7 +870,7 @@ void test_rdaux_decode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_DATA_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdaux_decode_broadcast(&ltc6811_1, payload, NULL);
+    const size_t decoded_byte_count = ltc6811_1_api_rdaux_decode_broadcast(&ltc6811_1, payload, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
 #undef BUFFER_LENGTH
@@ -887,7 +887,7 @@ void test_rdstat_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t expected[BUFFER_LENGTH] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t encoded_byte_count = ltc6811_1_rdstat_encode_broadcast(NULL, LTC6811_1_STAR, result);
+    size_t encoded_byte_count = ltc6811_1_api_rdstat_encode_broadcast(NULL, LTC6811_1_STAR, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -895,7 +895,7 @@ void test_rdstat_encode_with_null_handler(void) {
 }
 
 void test_rdstat_encode_with_null_output_array(void) {
-    size_t encoded_byte_count = ltc6811_1_rdstat_encode_broadcast(&ltc6811_1, LTC6811_1_STAR, NULL);
+    size_t encoded_byte_count = ltc6811_1_api_rdstat_encode_broadcast(&ltc6811_1, LTC6811_1_STAR, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 }
 
@@ -903,9 +903,9 @@ void test_rdstat_encode_with_invalid_register(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t expected_payload[BUFFER_LENGTH] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
-    const size_t expected_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_RDSTATA, expected_payload);
+    const size_t expected_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_RDSTATA, expected_payload);
 
-    size_t byte_count = ltc6811_1_rdstat_encode_broadcast(&ltc6811_1, LTC6811_1_STXR_COUNT, payload);
+    size_t byte_count = ltc6811_1_api_rdstat_encode_broadcast(&ltc6811_1, LTC6811_1_STXR_COUNT, payload);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, byte_count, "Encoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_payload, payload, BUFFER_LENGTH, "Encoded payload data do not match");
@@ -941,7 +941,7 @@ void test_rdstat_decode_with_valid_payload(void) {
             payload[reg][expected_byte_count[reg] + 3] = 0b01010101;
             payload[reg][expected_byte_count[reg] + 4] = 0b10101010;
             payload[reg][expected_byte_count[reg] + 5] = 0b01010101;
-            expected_byte_count[reg] += prv_ltc6811_1_pec_calc(
+            expected_byte_count[reg] += prv_ltc6811_1_api_pec_calc(
                 payload[reg] + expected_byte_count[reg],
                 LTC6811_1_REG_BYTE_COUNT);
         }
@@ -949,7 +949,7 @@ void test_rdstat_decode_with_valid_payload(void) {
 
     size_t decoded_byte_count[LTC6811_1_STXR_COUNT] = { 0 };
     for (enum Ltc68111Stxr reg = 0; reg < LTC6811_1_STXR_COUNT; ++reg) {
-        decoded_byte_count[reg] = ltc6811_1_rdstat_decode_broadcast(&ltc6811_1, reg, payload[reg], status);
+        decoded_byte_count[reg] = ltc6811_1_api_rdstat_decode_broadcast(&ltc6811_1, reg, payload[reg], status);
     }
 
     TEST_ASSERT_EQUAL_size_t_ARRAY_MESSAGE(expected_byte_count, decoded_byte_count, LTC6811_1_STXR_COUNT, "Decoded byte count do not match");
@@ -972,7 +972,7 @@ void test_rdstat_decode_decoded_payload_same_order_with_valid_status(void) {
         // Prepare payloads
         for (enum Ltc68111Stxr reg = 0; reg < LTC6811_1_STXR_COUNT; ++reg) {
             payload[reg][expected_byte_count[reg] + 0] = ltc * LTC6811_1_STXR_COUNT + reg;
-            expected_byte_count[reg] += prv_ltc6811_1_pec_calc(
+            expected_byte_count[reg] += prv_ltc6811_1_api_pec_calc(
                 payload[reg] + expected_byte_count[reg],
                 LTC6811_1_REG_BYTE_COUNT);
         }
@@ -980,7 +980,7 @@ void test_rdstat_decode_decoded_payload_same_order_with_valid_status(void) {
 
     size_t decoded_byte_count[LTC6811_1_STXR_COUNT] = { 0 };
     for (enum Ltc68111Stxr reg = 0; reg < LTC6811_1_STXR_COUNT; ++reg) {
-        decoded_byte_count[reg] = ltc6811_1_rdstat_decode_broadcast(&ltc6811_1, reg, payload[reg], status);
+        decoded_byte_count[reg] = ltc6811_1_api_rdstat_decode_broadcast(&ltc6811_1, reg, payload[reg], status);
     }
 
     TEST_ASSERT_EQUAL_size_t_ARRAY_MESSAGE(expected_byte_count, decoded_byte_count, LTC6811_1_STXR_COUNT, "Decoded byte count do not match");
@@ -1009,7 +1009,7 @@ void test_rdstat_decode_with_invalid_pec(void) {
         payload[reg][expected_byte_count[reg] + 4] = 0b10101010;
         payload[reg][expected_byte_count[reg] + 5] = 0b01010101;
         if (reg != LTC6811_1_STBR) {
-            expected_byte_count[reg] += prv_ltc6811_1_pec_calc(
+            expected_byte_count[reg] += prv_ltc6811_1_api_pec_calc(
                 payload[reg] + expected_byte_count[reg],
                 LTC6811_1_REG_BYTE_COUNT);
         }
@@ -1017,7 +1017,7 @@ void test_rdstat_decode_with_invalid_pec(void) {
 
     size_t decoded_byte_count[LTC6811_1_STXR_COUNT] = { 0 };
     for (enum Ltc68111Stxr reg = 0; reg < LTC6811_1_STXR_COUNT; ++reg) {
-        decoded_byte_count[reg] = ltc6811_1_rdstat_decode_broadcast(&ltc6811_1, reg, payload[reg], &status);
+        decoded_byte_count[reg] = ltc6811_1_api_rdstat_decode_broadcast(&ltc6811_1, reg, payload[reg], &status);
     }
 
     TEST_ASSERT_EQUAL_size_t_ARRAY_MESSAGE(expected_byte_count, decoded_byte_count, LTC6811_1_STXR_COUNT, "Decoded byte count do not match");
@@ -1031,7 +1031,7 @@ void test_rdstat_decode_with_null_handler(void) {
     struct Ltc68111Str status[LTC6811_1_COUNT] = { 0 };
     struct Ltc68111Str expected_status[LTC6811_1_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdstat_decode_broadcast(NULL, LTC6811_1_STAR, payload, status);
+    const size_t decoded_byte_count = ltc6811_1_api_rdstat_decode_broadcast(NULL, LTC6811_1_STAR, payload, status);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_status, status, sizeof(status[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1042,7 +1042,7 @@ void test_rdstat_decode_with_null_payload(void) {
     struct Ltc68111Str status[LTC6811_1_COUNT] = { 0 };
     struct Ltc68111Str expected_status[LTC6811_1_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdstat_decode_broadcast(&ltc6811_1, LTC6811_1_STAR, NULL, status);
+    const size_t decoded_byte_count = ltc6811_1_api_rdstat_decode_broadcast(&ltc6811_1, LTC6811_1_STAR, NULL, status);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_status, status, sizeof(status[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1052,7 +1052,7 @@ void test_rdstat_decode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_DATA_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdstat_decode_broadcast(&ltc6811_1, LTC6811_1_STAR, payload, NULL);
+    const size_t decoded_byte_count = ltc6811_1_api_rdstat_decode_broadcast(&ltc6811_1, LTC6811_1_STAR, payload, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
 #undef BUFFER_LENGTH
@@ -1080,7 +1080,7 @@ void test_wrsctrl_encode_with_valid_sctrl(void) {
             sctrl[index + 3] = 0b0101;
         }
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRSCTRL, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRSCTRL, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
@@ -1090,11 +1090,11 @@ void test_wrsctrl_encode_with_valid_sctrl(void) {
         expected[reverse_index + 3] = 0b01010101;
         expected[reverse_index + 4] = 0b10101010;
         expected[reverse_index + 5] = 0b01010101;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrsctrl_encode_broadcast(&ltc6811_1, sctrl, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrsctrl_encode_broadcast(&ltc6811_1, sctrl, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1111,16 +1111,16 @@ void test_wrsctrl_encode_encoded_payload_reverse_order_with_valid_sctrl(void) {
         const size_t index = ltc * LTC6811_1_SCTRL_COUNT;
         sctrl[index] = ltc;
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRSCTRL, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRSCTRL, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
         expected[reverse_index] = ltc;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrsctrl_encode_broadcast(&ltc6811_1, sctrl, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrsctrl_encode_broadcast(&ltc6811_1, sctrl, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1131,7 +1131,7 @@ void test_wrsctrl_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t sctrl[LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrsctrl_encode_broadcast(NULL, sctrl, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrsctrl_encode_broadcast(NULL, sctrl, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1141,7 +1141,7 @@ void test_wrsctrl_encode_with_null_handler(void) {
 void test_wrsctrl_encode_with_null_payload(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrsctrl_encode_broadcast(&ltc6811_1, NULL, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrsctrl_encode_broadcast(&ltc6811_1, NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1151,7 +1151,7 @@ void test_wrsctrl_encode_with_null_payload(void) {
 void test_wrsctrl_encode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t sctrl[LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrsctrl_encode_broadcast(&ltc6811_1, sctrl, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_wrsctrl_encode_broadcast(&ltc6811_1, sctrl, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 #undef BUFFER_LENGTH
@@ -1167,7 +1167,7 @@ void test_wrsctrl_encode_with_null_output_array(void) {
 void test_rdsctrl_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t encoded_byte_count = ltc6811_1_rdsctrl_encode_broadcast(NULL, result);
+    size_t encoded_byte_count = ltc6811_1_api_rdsctrl_encode_broadcast(NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1175,7 +1175,7 @@ void test_rdsctrl_encode_with_null_handler(void) {
 }
 
 void test_rdsctrl_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_rdsctrl_encode_broadcast(&ltc6811_1, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_rdsctrl_encode_broadcast(&ltc6811_1, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 }
 
@@ -1201,10 +1201,10 @@ void test_rdsctrl_decode_with_valid_payload(void) {
         payload[expected_byte_count + 3] = 0b01010101;
         payload[expected_byte_count + 4] = 0b10101010;
         payload[expected_byte_count + 5] = 0b01010101;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdsctrl_decode_broadcast(&ltc6811_1, payload, sctrl);
+    const size_t decoded_byte_count = ltc6811_1_api_rdsctrl_decode_broadcast(&ltc6811_1, payload, sctrl);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_sctrl, sctrl, LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1223,10 +1223,10 @@ void test_rdsctrl_decode_decoded_payload_same_order_with_valid_sctrl(void) {
 
         // Prepare payloads
         payload[expected_byte_count] = ltc;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    size_t decoded_byte_count = ltc6811_1_rdsctrl_decode_broadcast(&ltc6811_1, payload, sctrl);
+    size_t decoded_byte_count = ltc6811_1_api_rdsctrl_decode_broadcast(&ltc6811_1, payload, sctrl);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_sctrl, sctrl, LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1246,7 +1246,7 @@ void test_rdsctrl_decode_with_invalid_pec(void) {
     payload[4] = 0b10101010;
     payload[5] = 0b01010101;
 
-    const size_t decoded_byte_count = ltc6811_1_rdsctrl_decode_broadcast(&ltc6811_1, payload, sctrl);
+    const size_t decoded_byte_count = ltc6811_1_api_rdsctrl_decode_broadcast(&ltc6811_1, payload, sctrl);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, sctrl, LTC6811_1_SCTRL_COUNT, "Error while decoding payload data");
@@ -1258,7 +1258,7 @@ void test_rdsctrl_decode_with_null_handler(void) {
     uint8_t sctrl[LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdsctrl_decode_broadcast(NULL, payload, sctrl);
+    const size_t decoded_byte_count = ltc6811_1_api_rdsctrl_decode_broadcast(NULL, payload, sctrl);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, sctrl, LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1268,7 +1268,7 @@ void test_rdsctrl_decode_with_null_handler(void) {
 void test_rdsctrl_decode_with_null_payload(void) {
     uint8_t sctrl[LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdsctrl_decode_broadcast(&ltc6811_1, NULL, sctrl);
+    const size_t decoded_byte_count = ltc6811_1_api_rdsctrl_decode_broadcast(&ltc6811_1, NULL, sctrl);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, sctrl, LTC6811_1_SCTRL_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1278,7 +1278,7 @@ void test_rdsctrl_decode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_DATA_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdsctrl_decode_broadcast(&ltc6811_1, payload, NULL);
+    const size_t decoded_byte_count = ltc6811_1_api_rdsctrl_decode_broadcast(&ltc6811_1, payload, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
 #undef BUFFER_LENGTH
@@ -1294,7 +1294,7 @@ void test_rdsctrl_decode_with_null_output_array(void) {
 void test_stsctrl_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t encoded_byte_count = ltc6811_1_stsctrl_encode_broadcast(NULL, result);
+    size_t encoded_byte_count = ltc6811_1_api_stsctrl_encode_broadcast(NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1302,7 +1302,7 @@ void test_stsctrl_encode_with_null_handler(void) {
 }
 
 void test_stsctrl_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_stsctrl_encode_broadcast(&ltc6811_1, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_stsctrl_encode_broadcast(&ltc6811_1, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 }
 
@@ -1316,7 +1316,7 @@ void test_stsctrl_encode_with_null_output_array(void) {
 void test_clrsctrl_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t encoded_byte_count = ltc6811_1_clrsctrl_encode_broadcast(NULL, result);
+    size_t encoded_byte_count = ltc6811_1_api_clrsctrl_encode_broadcast(NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1324,7 +1324,7 @@ void test_clrsctrl_encode_with_null_handler(void) {
 }
 
 void test_clrsctrl_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_clrsctrl_encode_broadcast(&ltc6811_1, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_clrsctrl_encode_broadcast(&ltc6811_1, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 }
 
@@ -1350,7 +1350,7 @@ void test_wrpwm_encode_with_valid_pwm(void) {
             pwm[index + 3] = 0b0101;
         }
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRPWM, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRPWM, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
@@ -1360,11 +1360,11 @@ void test_wrpwm_encode_with_valid_pwm(void) {
         expected[reverse_index + 3] = 0b01010101;
         expected[reverse_index + 4] = 0b10101010;
         expected[reverse_index + 5] = 0b01010101;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrpwm_encode_broadcast(&ltc6811_1, pwm, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrpwm_encode_broadcast(&ltc6811_1, pwm, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1381,16 +1381,16 @@ void test_wrpwm_encode_encoded_payload_reverse_order_with_valid_pwm(void) {
         const size_t index = ltc * LTC6811_1_PWM_COUNT;
         pwm[index] = ltc;
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRPWM, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRPWM, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
         expected[reverse_index] = ltc;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrpwm_encode_broadcast(&ltc6811_1, pwm, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrpwm_encode_broadcast(&ltc6811_1, pwm, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1401,7 +1401,7 @@ void test_wrpwm_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t pwm[LTC6811_1_PWM_COUNT * LTC6811_1_COUNT] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrpwm_encode_broadcast(NULL, pwm, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrpwm_encode_broadcast(NULL, pwm, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1411,7 +1411,7 @@ void test_wrpwm_encode_with_null_handler(void) {
 void test_wrpwm_encode_with_null_payload(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrpwm_encode_broadcast(&ltc6811_1, NULL, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrpwm_encode_broadcast(&ltc6811_1, NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1421,7 +1421,7 @@ void test_wrpwm_encode_with_null_payload(void) {
 void test_wrpwm_encode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t pwm[LTC6811_1_PWM_COUNT * LTC6811_1_COUNT] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrpwm_encode_broadcast(&ltc6811_1, pwm, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_wrpwm_encode_broadcast(&ltc6811_1, pwm, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 #undef BUFFER_LENGTH
@@ -1437,7 +1437,7 @@ void test_wrpwm_encode_with_null_output_array(void) {
 void test_rdpwm_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t encoded_byte_count = ltc6811_1_rdpwm_encode_broadcast(NULL, result);
+    size_t encoded_byte_count = ltc6811_1_api_rdpwm_encode_broadcast(NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -1445,7 +1445,7 @@ void test_rdpwm_encode_with_null_handler(void) {
 }
 
 void test_rdpwm_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_rdpwm_encode_broadcast(&ltc6811_1, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_rdpwm_encode_broadcast(&ltc6811_1, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 }
 
@@ -1471,10 +1471,10 @@ void test_rdpwm_decode_with_valid_payload(void) {
         payload[expected_byte_count + 3] = 0b01010101;
         payload[expected_byte_count + 4] = 0b10101010;
         payload[expected_byte_count + 5] = 0b01010101;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdpwm_decode_broadcast(&ltc6811_1, payload, pwm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdpwm_decode_broadcast(&ltc6811_1, payload, pwm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_pwm, pwm, LTC6811_1_PWM_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1493,10 +1493,10 @@ void test_rdpwm_decode_decoded_payload_same_order_with_valid_pwm(void) {
 
         // Prepare payloads
         payload[expected_byte_count] = ltc;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    size_t decoded_byte_count = ltc6811_1_rdpwm_decode_broadcast(&ltc6811_1, payload, pwm);
+    size_t decoded_byte_count = ltc6811_1_api_rdpwm_decode_broadcast(&ltc6811_1, payload, pwm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected_pwm, pwm, LTC6811_1_PWM_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1516,7 +1516,7 @@ void test_rdpwm_decode_with_invalid_pec(void) {
     payload[4] = 0b10101010;
     payload[5] = 0b01010101;
 
-    const size_t decoded_byte_count = ltc6811_1_rdpwm_decode_broadcast(&ltc6811_1, payload, pwm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdpwm_decode_broadcast(&ltc6811_1, payload, pwm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, pwm, LTC6811_1_PWM_COUNT, "Error while decoding payload data");
@@ -1528,7 +1528,7 @@ void test_rdpwm_decode_with_null_handler(void) {
     uint8_t pwm[LTC6811_1_PWM_COUNT * LTC6811_1_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdpwm_decode_broadcast(NULL, payload, pwm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdpwm_decode_broadcast(NULL, payload, pwm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, pwm, LTC6811_1_PWM_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1538,7 +1538,7 @@ void test_rdpwm_decode_with_null_handler(void) {
 void test_rdpwm_decode_with_null_payload(void) {
     uint8_t pwm[LTC6811_1_PWM_COUNT * LTC6811_1_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdpwm_decode_broadcast(&ltc6811_1, NULL, pwm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdpwm_decode_broadcast(&ltc6811_1, NULL, pwm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, pwm, LTC6811_1_PWM_COUNT * LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -1548,7 +1548,7 @@ void test_rdpwm_decode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_DATA_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdpwm_decode_broadcast(&ltc6811_1, payload, NULL);
+    const size_t decoded_byte_count = ltc6811_1_api_rdpwm_decode_broadcast(&ltc6811_1, payload, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
 #undef BUFFER_LENGTH
@@ -1564,7 +1564,7 @@ void test_rdpwm_decode_with_null_output_array(void) {
 void test_adcv_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adcv_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adcv_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1577,7 +1577,7 @@ void test_adcv_encode_with_null_handler(void) {
 }
 
 void test_adcv_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adcv_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adcv_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1596,7 +1596,7 @@ void test_adcv_encode_with_null_output_array(void) {
 void test_adow_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adow_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adow_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_PUP_INACTIVE,
@@ -1610,7 +1610,7 @@ void test_adow_encode_with_null_handler(void) {
 }
 
 void test_adow_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adow_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adow_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_PUP_INACTIVE,
@@ -1630,7 +1630,7 @@ void test_adow_encode_with_null_output_array(void) {
 void test_cvst_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_cvst_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_cvst_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_ST_ONE,
@@ -1642,7 +1642,7 @@ void test_cvst_encode_with_null_handler(void) {
 }
 
 void test_cvst_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_cvst_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_cvst_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_ST_ONE,
@@ -1660,7 +1660,7 @@ void test_cvst_encode_with_null_output_array(void) {
 void test_adol_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adol_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adol_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1672,7 +1672,7 @@ void test_adol_encode_with_null_handler(void) {
 }
 
 void test_adol_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adol_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adol_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1690,7 +1690,7 @@ void test_adol_encode_with_null_output_array(void) {
 void test_adax_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adax_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adax_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHG_GPIO_ALL,
@@ -1702,7 +1702,7 @@ void test_adax_encode_with_null_handler(void) {
 }
 
 void test_adax_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adax_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adax_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHG_GPIO_ALL,
@@ -1720,7 +1720,7 @@ void test_adax_encode_with_null_output_array(void) {
 void test_adaxd_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adaxd_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adaxd_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHG_GPIO_ALL,
@@ -1732,7 +1732,7 @@ void test_adaxd_encode_with_null_handler(void) {
 }
 
 void test_adaxd_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adaxd_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adaxd_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHG_GPIO_ALL,
@@ -1750,7 +1750,7 @@ void test_adaxd_encode_with_null_output_array(void) {
 void test_axst_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_axst_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_axst_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_ST_ONE,
@@ -1762,7 +1762,7 @@ void test_axst_encode_with_null_handler(void) {
 }
 
 void test_axst_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_axst_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_axst_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_ST_ONE,
@@ -1780,7 +1780,7 @@ void test_axst_encode_with_null_output_array(void) {
 void test_adstat_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adstat_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adstat_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHST_ALL,
@@ -1792,7 +1792,7 @@ void test_adstat_encode_with_null_handler(void) {
 }
 
 void test_adstat_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adstat_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adstat_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHST_ALL,
@@ -1810,7 +1810,7 @@ void test_adstat_encode_with_null_output_array(void) {
 void test_adstatd_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adstatd_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adstatd_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHST_ALL,
@@ -1822,7 +1822,7 @@ void test_adstatd_encode_with_null_handler(void) {
 }
 
 void test_adstatd_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adstatd_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adstatd_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_CHST_ALL,
@@ -1840,7 +1840,7 @@ void test_adstatd_encode_with_null_output_array(void) {
 void test_statst_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_statst_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_statst_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_ST_ONE,
@@ -1852,7 +1852,7 @@ void test_statst_encode_with_null_handler(void) {
 }
 
 void test_statst_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_statst_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_statst_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_ST_ONE,
@@ -1870,7 +1870,7 @@ void test_statst_encode_with_null_output_array(void) {
 void test_adcvax_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adcvax_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adcvax_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1882,7 +1882,7 @@ void test_adcvax_encode_with_null_handler(void) {
 }
 
 void test_adcvax_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adcvax_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adcvax_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1900,7 +1900,7 @@ void test_adcvax_encode_with_null_output_array(void) {
 void test_adcvsc_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_adcvsc_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adcvsc_encode_broadcast(
         NULL,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1912,7 +1912,7 @@ void test_adcvsc_encode_with_null_handler(void) {
 }
 
 void test_adcvsc_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_adcvsc_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_adcvsc_encode_broadcast(
         &ltc6811_1,
         LTC6811_1_MD_26HZ,
         LTC6811_1_DCP_DISABLED,
@@ -1930,7 +1930,7 @@ void test_adcvsc_encode_with_null_output_array(void) {
 void test_clrcell_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_clrcell_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_clrcell_encode_broadcast(
         NULL,
         result);
 
@@ -1940,7 +1940,7 @@ void test_clrcell_encode_with_null_handler(void) {
 }
 
 void test_clrcell_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_clrcell_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_clrcell_encode_broadcast(
         &ltc6811_1,
         NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
@@ -1956,7 +1956,7 @@ void test_clrcell_encode_with_null_output_array(void) {
 void test_clraux_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_clraux_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_clraux_encode_broadcast(
         NULL,
         result);
 
@@ -1966,7 +1966,7 @@ void test_clraux_encode_with_null_handler(void) {
 }
 
 void test_clraux_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_clraux_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_clraux_encode_broadcast(
         &ltc6811_1,
         NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
@@ -1982,7 +1982,7 @@ void test_clraux_encode_with_null_output_array(void) {
 void test_clrstat_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_clrstat_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_clrstat_encode_broadcast(
         NULL,
         result);
 
@@ -1992,7 +1992,7 @@ void test_clrstat_encode_with_null_handler(void) {
 }
 
 void test_clrstat_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_clrstat_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_clrstat_encode_broadcast(
         &ltc6811_1,
         NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
@@ -2008,7 +2008,7 @@ void test_clrstat_encode_with_null_output_array(void) {
 void test_pladc_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_pladc_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_pladc_encode_broadcast(
         NULL,
         result);
 
@@ -2018,7 +2018,7 @@ void test_pladc_encode_with_null_handler(void) {
 }
 
 void test_pladc_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_pladc_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_pladc_encode_broadcast(
         &ltc6811_1,
         NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
@@ -2034,7 +2034,7 @@ void test_pladc_encode_with_null_output_array(void) {
 void test_diagn_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_POLL_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_diagn_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_diagn_encode_broadcast(
         NULL,
         result);
 
@@ -2044,7 +2044,7 @@ void test_diagn_encode_with_null_handler(void) {
 }
 
 void test_diagn_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_diagn_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_diagn_encode_broadcast(
         &ltc6811_1,
         NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
@@ -2074,7 +2074,7 @@ void test_wrcomm_encode_with_valid_comm(void) {
             comm[ltc].payload[i] = i + 1;
         }
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRCOMM, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRCOMM, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
@@ -2084,11 +2084,11 @@ void test_wrcomm_encode_with_valid_comm(void) {
         expected[reverse_index + 3] = 0x2e;
         expected[reverse_index + 4] = 0xc0;
         expected[reverse_index + 5] = 0x3f;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrcomm_encode_broadcast(&ltc6811_1, comm, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcomm_encode_broadcast(&ltc6811_1, comm, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -2104,16 +2104,16 @@ void test_wrcomm_encode_encoded_payload_reverse_order_with_valid_comm(void) {
     for (size_t ltc = 0; ltc < LTC6811_1_COUNT; ++ltc) {
         comm[ltc].icom0 = ltc;
 
-        const size_t cmd_byte_count = prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_WRCOMM, expected);
+        const size_t cmd_byte_count = prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_WRCOMM, expected);
         const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
         const size_t reverse_index = cmd_byte_count +
                                      (LTC6811_1_COUNT - ltc - 1U) * payload_byte_count;
         expected[reverse_index] = ltc << 4;
-        const size_t _ = prv_ltc6811_1_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
+        const size_t _ = prv_ltc6811_1_api_pec_calc(expected + reverse_index, LTC6811_1_REG_BYTE_COUNT);
         EAGLETRT_API_UNUSED(_);
     }
 
-    const size_t encoded_byte_count = ltc6811_1_wrcomm_encode_broadcast(&ltc6811_1, comm, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcomm_encode_broadcast(&ltc6811_1, comm, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(BUFFER_LENGTH, encoded_byte_count, "Encoded bytes count do not match");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -2125,7 +2125,7 @@ void test_wrcomm_encode_with_null_handler(void) {
     struct Ltc68111Comm comm[LTC6811_1_COUNT] = { 0 };
     uint8_t expected[BUFFER_LENGTH] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrcomm_encode_broadcast(NULL, comm, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcomm_encode_broadcast(NULL, comm, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -2136,7 +2136,7 @@ void test_wrcomm_encode_with_null_comm(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t expected[BUFFER_LENGTH] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrcomm_encode_broadcast(&ltc6811_1, NULL, result);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcomm_encode_broadcast(&ltc6811_1, NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -2146,7 +2146,7 @@ void test_wrcomm_encode_with_null_comm(void) {
 void test_wrcomm_encode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_WRITE_BUFFER_SIZE(LTC6811_1_COUNT))
     struct Ltc68111Comm comm[LTC6811_1_COUNT] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_wrcomm_encode_broadcast(&ltc6811_1, comm, NULL);
+    const size_t encoded_byte_count = ltc6811_1_api_wrcomm_encode_broadcast(&ltc6811_1, comm, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 #undef BUFFER_LENGTH
@@ -2163,7 +2163,7 @@ void test_rdcomm_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_READ_BUFFER_SIZE)
     uint8_t expected[BUFFER_LENGTH] = { 0 };
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    size_t encoded_byte_count = ltc6811_1_rdcomm_encode_broadcast(NULL, result);
+    size_t encoded_byte_count = ltc6811_1_api_rdcomm_encode_broadcast(NULL, result);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, result, BUFFER_LENGTH, "Encoded data do not match");
@@ -2171,7 +2171,7 @@ void test_rdcomm_encode_with_null_handler(void) {
 }
 
 void test_rdcomm_encode_with_null_output_array(void) {
-    size_t encoded_byte_count = ltc6811_1_rdcomm_encode_broadcast(&ltc6811_1, NULL);
+    size_t encoded_byte_count = ltc6811_1_api_rdcomm_encode_broadcast(&ltc6811_1, NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");
 }
 
@@ -2199,10 +2199,10 @@ void test_rdcomm_decode_with_valid_payload(void) {
         payload[expected_byte_count + 3] = 0x2e;
         payload[expected_byte_count + 4] = 0xc0;
         payload[expected_byte_count + 5] = 0x3f;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdcomm_decode_broadcast(&ltc6811_1, payload, comm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcomm_decode_broadcast(&ltc6811_1, payload, comm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_comm, comm, sizeof(comm[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -2219,10 +2219,10 @@ void test_rdcomm_decode_decoded_payload_same_order_with_valid_comm(void) {
     for (size_t ltc = 0; ltc < LTC6811_1_COUNT; ++ltc) {
         expected_comm[ltc].icom0 = ltc;
         payload[expected_byte_count] = ltc << 4U;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
 
-    const size_t decoded_byte_count = ltc6811_1_rdcomm_decode_broadcast(&ltc6811_1, payload, comm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcomm_decode_broadcast(&ltc6811_1, payload, comm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_comm, comm, sizeof(comm[0]), LTC6811_1_COUNT, "Decoded payload data do not match");
@@ -2255,13 +2255,13 @@ void test_rdcomm_decode_with_invalid_pec(void) {
         payload[expected_byte_count + 3] = 0x2e;
         payload[expected_byte_count + 4] = 0xc0;
         payload[expected_byte_count + 5] = 0x3f;
-        expected_byte_count += prv_ltc6811_1_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
+        expected_byte_count += prv_ltc6811_1_api_pec_calc(payload + expected_byte_count, LTC6811_1_REG_BYTE_COUNT);
     }
     // Set PEC of the first IC to an invalid value
     const size_t payload_byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     payload[6] = payload[7] = 0;
 
-    const size_t decoded_byte_count = ltc6811_1_rdcomm_decode_broadcast(&ltc6811_1, payload, comm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcomm_decode_broadcast(&ltc6811_1, payload, comm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(expected_byte_count - payload_byte_count, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(&expected_comm[0], &comm[0], sizeof(comm[0]), "Payload with wrong PEC was decoded");
@@ -2275,7 +2275,7 @@ void test_rdcomm_decode_with_null_handler(void) {
     struct Ltc68111Comm comm[LTC6811_1_COUNT] = { 0 };
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcomm_decode_broadcast(NULL, payload, comm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcomm_decode_broadcast(NULL, payload, comm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_comm, comm, sizeof(comm[0]), LTC6811_1_COUNT, "Decoded commuration has changed");
@@ -2286,7 +2286,7 @@ void test_rdcomm_decode_with_null_payload(void) {
     struct Ltc68111Comm expected_comm[LTC6811_1_COUNT] = { 0 };
     struct Ltc68111Comm comm[LTC6811_1_COUNT] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcomm_decode_broadcast(&ltc6811_1, NULL, comm);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcomm_decode_broadcast(&ltc6811_1, NULL, comm);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_comm, comm, sizeof(comm[0]), LTC6811_1_COUNT, "Decoded commuration has changed");
@@ -2296,7 +2296,7 @@ void test_rdcomm_decode_with_null_output_array(void) {
 #define BUFFER_LENGTH (LTC6811_1_DATA_BUFFER_SIZE(LTC6811_1_COUNT))
     uint8_t payload[BUFFER_LENGTH] = { 0 };
 
-    const size_t decoded_byte_count = ltc6811_1_rdcomm_decode_broadcast(&ltc6811_1, payload, NULL);
+    const size_t decoded_byte_count = ltc6811_1_api_rdcomm_decode_broadcast(&ltc6811_1, payload, NULL);
 
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, decoded_byte_count, "Decoded byte count do not match");
 #undef BUFFER_LENGTH
@@ -2312,7 +2312,7 @@ void test_rdcomm_decode_with_null_output_array(void) {
 void test_stcomm_encode_contains_dummy_data(void) {
 #define BUFFER_LENGTH (LTC6811_1_STCOMM_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_stcomm_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_stcomm_encode_broadcast(
         &ltc6811_1,
         result);
 
@@ -2326,7 +2326,7 @@ void test_stcomm_encode_contains_dummy_data(void) {
 void test_stcomm_encode_with_null_handler(void) {
 #define BUFFER_LENGTH (LTC6811_1_STCOMM_BUFFER_SIZE)
     uint8_t result[BUFFER_LENGTH] = { 0 };
-    const size_t encoded_byte_count = ltc6811_1_stcomm_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_stcomm_encode_broadcast(
         NULL,
         result);
 
@@ -2336,7 +2336,7 @@ void test_stcomm_encode_with_null_handler(void) {
 }
 
 void test_stcomm_encode_with_null_output_array(void) {
-    const size_t encoded_byte_count = ltc6811_1_stcomm_encode_broadcast(
+    const size_t encoded_byte_count = ltc6811_1_api_stcomm_encode_broadcast(
         &ltc6811_1,
         NULL);
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0U, encoded_byte_count, "Encoded bytes count is greater than 0");

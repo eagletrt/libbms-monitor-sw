@@ -73,7 +73,7 @@ EAGLETRT_STATIC const uint16_t crcTable[] = {
  * \param[in]       len: The length of the payload in bytes
  * \return          The calculated PEC
  */
-EAGLETRT_STATIC uint16_t prv_ltc6811_1_pec15(const uint8_t *const payload, const size_t len) {
+EAGLETRT_STATIC uint16_t prv_ltc6811_1_api_pec15(const uint8_t *const payload, const size_t len) {
     const uint16_t pec_seed = 16;
     uint16_t remainder = pec_seed;
     for (size_t i = 0; i < len; ++i) {
@@ -95,8 +95,8 @@ EAGLETRT_STATIC uint16_t prv_ltc6811_1_pec15(const uint8_t *const payload, const
  * \param[in]       len: The length of the payload in bytes, PEC excluded
  * \return          The length of the payload in bytes, PEC included
  */
-EAGLETRT_STATIC_INLINE size_t prv_ltc6811_1_pec_calc(uint8_t *payload, size_t len) {
-    uint16_t pec = prv_ltc6811_1_pec15(payload, len);
+EAGLETRT_STATIC_INLINE size_t prv_ltc6811_1_api_pec_calc(uint8_t *payload, size_t len) {
+    uint16_t pec = prv_ltc6811_1_api_pec15(payload, len);
     const uint8_t pec_offset_high = 8U;
     payload[len] = (uint8_t)(pec >> pec_offset_high);
     payload[len + 1] = (uint8_t)pec;
@@ -110,10 +110,10 @@ EAGLETRT_STATIC_INLINE size_t prv_ltc6811_1_pec_calc(uint8_t *payload, size_t le
  * \param[in]       len: Length of the payload in bytes, PEC included
  * \return          True if the given and calculated PEC match, false otherwise
  */
-EAGLETRT_STATIC_INLINE bool prv_ltc6811_1_pec_is_correct(const uint8_t *payload, size_t len) {
+EAGLETRT_STATIC_INLINE bool prv_ltc6811_1_api_pec_is_correct(const uint8_t *payload, size_t len) {
     const uint8_t pec_offset_high = 8U;
     uint16_t pec = ((uint16_t)payload[len - 2] << pec_offset_high) | (uint16_t)payload[len - 1];
-    return prv_ltc6811_1_pec15(payload, len - LTC6811_1_PEC_BYTE_COUNT) == pec;
+    return prv_ltc6811_1_api_pec15(payload, len - LTC6811_1_PEC_BYTE_COUNT) == pec;
 }
 
 /*!
@@ -130,12 +130,12 @@ EAGLETRT_STATIC_INLINE bool prv_ltc6811_1_pec_is_correct(const uint8_t *payload,
  * \param[out]      out: The array where command and PEC are stored
  * \return          The total number of encoded bytes, PEC included
  */
-EAGLETRT_STATIC_INLINE size_t prv_ltc6811_1_cmd_encode(enum Ltc68111Command cmd, uint8_t *out) {
+EAGLETRT_STATIC_INLINE size_t prv_ltc6811_1_api_cmd_encode(enum Ltc68111Command cmd, uint8_t *out) {
     const uint8_t cmd_offset_high = 8U;
     const uint8_t cmd_mask_high = 0x07;
     out[0] = (uint8_t)((cmd >> cmd_offset_high) & cmd_mask_high);
     out[1] = (uint8_t)cmd;
-    return prv_ltc6811_1_pec_calc(out, 2);
+    return prv_ltc6811_1_api_pec_calc(out, 2);
 }
 
 /*!
@@ -145,7 +145,7 @@ EAGLETRT_STATIC_INLINE size_t prv_ltc6811_1_cmd_encode(enum Ltc68111Command cmd,
  * \param[in]       mode: The ADC conversion mode
  * \return          The given command with the ADC conversion mode set
  */
-EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_md(enum Ltc68111Command cmd, enum Ltc68111Md mode) {
+EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_api_cmd_set_md(enum Ltc68111Command cmd, enum Ltc68111Md mode) {
     const uint8_t mode_offset = 7U;
     return mode < LTC6811_1_MD_COUNT ? (cmd | (mode << mode_offset)) : cmd;
 }
@@ -158,7 +158,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_md(enum Ltc681
  * \param[in]       pup: The Pull-up/Pull-down option
  * \return          The given command with the Pull-up/Pull-down option set
  */
-EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_pup(enum Ltc68111Command cmd, enum Ltc68111Pup pup) {
+EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_api_cmd_set_pup(enum Ltc68111Command cmd, enum Ltc68111Pup pup) {
     const uint8_t pup_offset = 6U;
     return pup < LTC6811_1_PUP_COUNT ? (cmd | (pup << pup_offset)) : cmd;
 }
@@ -170,7 +170,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_pup(enum Ltc68
  * \param[in]       mode: The self test mode option
  * \return          The given command with the self test mode set
  */
-EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_st(enum Ltc68111Command cmd, enum Ltc68111St mode) {
+EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_api_cmd_set_st(enum Ltc68111Command cmd, enum Ltc68111St mode) {
     const uint8_t mode_offset = 5U;
     return mode < LTC6811_1_ST_COUNT ? (cmd | (mode << mode_offset)) : cmd;
 }
@@ -182,7 +182,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_st(enum Ltc681
  * \param[in]       dcp: The discharge permitted option
  * \return          The given command with the discharge option set
  */
-EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_dcp(enum Ltc68111Command cmd, enum Ltc68111Dcp dcp) {
+EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_api_cmd_set_dcp(enum Ltc68111Command cmd, enum Ltc68111Dcp dcp) {
     const uint8_t dcp_offset = 4U;
     return dcp < LTC6811_1_DCP_COUNT ? (cmd | (dcp << dcp_offset)) : cmd;
 }
@@ -195,7 +195,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_dcp(enum Ltc68
  * \param[in]       cells: The selected cells
  * \return          The given command with the selected cells set
  */
-EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_ch(enum Ltc68111Command cmd, enum Ltc68111Ch cells) {
+EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_api_cmd_set_ch(enum Ltc68111Command cmd, enum Ltc68111Ch cells) {
     return cells < LTC6811_1_CH_COUNT ? (cmd | (uint8_t)cells) : cmd;
 }
 
@@ -207,7 +207,7 @@ EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_ch(enum Ltc681
  * \param[in]       gpios: The selected GPIOs
  * \return          The given command with the selected GPIOs set
  */
-EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_chg(enum Ltc68111Command cmd, enum Ltc68111Chg gpios) {
+EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_api_cmd_set_chg(enum Ltc68111Command cmd, enum Ltc68111Chg gpios) {
     return gpios < LTC6811_1_CHG_COUNT ? (cmd | (uint8_t)gpios) : cmd;
 }
 
@@ -219,11 +219,11 @@ EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_chg(enum Ltc68
  * \param[in]       groups: The selected status groups
  * \return          The given command with the selected status groups set
  */
-EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_cmd_set_chst(enum Ltc68111Command cmd, enum Ltc68111Chst groups) {
+EAGLETRT_STATIC_INLINE enum Ltc68111Command prv_ltc6811_1_api_cmd_set_chst(enum Ltc68111Command cmd, enum Ltc68111Chst groups) {
     return groups < LTC6811_1_CHST_COUNT ? (cmd | (uint8_t)groups) : cmd;
 }
 
-void ltc6811_1_init(struct Ltc68111Handler *handler, size_t ltc_count) {
+void ltc6811_1_api_init(struct Ltc68111Handler *handler, size_t ltc_count) {
     if (handler == NULL) {
         return;
     }
@@ -231,11 +231,11 @@ void ltc6811_1_init(struct Ltc68111Handler *handler, size_t ltc_count) {
     handler->count = EAGLETRT_API_MAX(1U, ltc_count);
 }
 
-bool ltc6811_1_pladc_is_completed(const uint8_t byte) {
+bool ltc6811_1_api_pladc_is_completed(const uint8_t byte) {
     return byte == LTC6811_1_PLADC_COMPLETE_BYTE_VALUE;
 }
 
-size_t ltc6811_1_wrcfg_encode_broadcast(
+size_t ltc6811_1_api_wrcfg_encode_broadcast(
     const struct Ltc68111Handler *handler,
     struct Ltc68111Cfgr *config,
     uint8_t *out) {
@@ -244,7 +244,7 @@ size_t ltc6811_1_wrcfg_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_WRCFGA;
-    size_t encoded = prv_ltc6811_1_cmd_encode(cmd, out);
+    size_t encoded = prv_ltc6811_1_api_cmd_encode(cmd, out);
 
     for (size_t i = 0; i < handler->count; ++i) {
         const size_t configIndex = handler->count - i - 1;
@@ -257,19 +257,19 @@ size_t ltc6811_1_wrcfg_encode_broadcast(
         out[encoded + 4] = cfg->DCC;
         out[encoded + 5] = (cfg->DCTO << 4) | (cfg->DCC >> 8);
 
-        encoded += prv_ltc6811_1_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
+        encoded += prv_ltc6811_1_api_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
     }
     return encoded;
 }
 
-size_t ltc6811_1_rdcfg_encode_broadcast(const struct Ltc68111Handler *handler, uint8_t *out) {
+size_t ltc6811_1_api_rdcfg_encode_broadcast(const struct Ltc68111Handler *handler, uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
-    return prv_ltc6811_1_cmd_encode(LTC6811_1_CMD_RDCFGA, out);
+    return prv_ltc6811_1_api_cmd_encode(LTC6811_1_CMD_RDCFGA, out);
 }
 
-size_t ltc6811_1_rdcfg_decode_broadcast(
+size_t ltc6811_1_api_rdcfg_decode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     struct Ltc68111Cfgr *out) {
@@ -280,7 +280,7 @@ size_t ltc6811_1_rdcfg_decode_broadcast(
     size_t decoded = 0, off = 0;
     const size_t byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
-        if (prv_ltc6811_1_pec_is_correct(payload + off, byte_count)) {
+        if (prv_ltc6811_1_api_pec_is_correct(payload + off, byte_count)) {
             // Decode configuration payload
             out[i].ADCOPT = payload[off] & 0x01;
             out[i].DTEN = (payload[off] & 0x02) >> 1;
@@ -298,7 +298,7 @@ size_t ltc6811_1_rdcfg_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6811_1_rdcv_encode_broadcast(
+size_t ltc6811_1_api_rdcv_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Cvxr reg,
     uint8_t *out) {
@@ -324,10 +324,10 @@ size_t ltc6811_1_rdcv_encode_broadcast(
             cmd = LTC6811_1_CMD_RDCVA;
             break;
     }
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_rdcv_decode_broadcast(
+size_t ltc6811_1_api_rdcv_decode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     uint16_t *out) {
@@ -338,7 +338,7 @@ size_t ltc6811_1_rdcv_decode_broadcast(
     size_t decoded = 0, off = 0;
     const size_t byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
-        if (prv_ltc6811_1_pec_is_correct(payload + off, byte_count)) {
+        if (prv_ltc6811_1_api_pec_is_correct(payload + off, byte_count)) {
             // For each cell voltage in register
             for (size_t j = 0; j < LTC6811_1_REG_CELL_COUNT; ++j) {
                 size_t cell_off = off + j * sizeof(uint16_t);
@@ -351,7 +351,7 @@ size_t ltc6811_1_rdcv_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6811_1_rdaux_encode_broadcast(
+size_t ltc6811_1_api_rdaux_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Avxr reg,
     uint8_t *out) {
@@ -371,10 +371,10 @@ size_t ltc6811_1_rdaux_encode_broadcast(
             cmd = LTC6811_1_CMD_RDAUXA;
             break;
     }
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_rdaux_decode_broadcast(
+size_t ltc6811_1_api_rdaux_decode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     uint16_t *out) {
@@ -385,7 +385,7 @@ size_t ltc6811_1_rdaux_decode_broadcast(
     size_t decoded = 0, off = 0;
     const size_t byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
-        if (prv_ltc6811_1_pec_is_correct(payload + off, byte_count)) {
+        if (prv_ltc6811_1_api_pec_is_correct(payload + off, byte_count)) {
             // For each auxilary voltage in register
             for (size_t j = 0; j < LTC6811_1_REG_AUX_COUNT; ++j) {
                 size_t cell_off = off + j * sizeof(uint16_t);
@@ -398,7 +398,7 @@ size_t ltc6811_1_rdaux_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6811_1_rdstat_encode_broadcast(
+size_t ltc6811_1_api_rdstat_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Stxr reg,
     uint8_t *out) {
@@ -418,10 +418,10 @@ size_t ltc6811_1_rdstat_encode_broadcast(
             cmd = LTC6811_1_CMD_RDSTATA;
             break;
     }
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_rdstat_decode_broadcast(
+size_t ltc6811_1_api_rdstat_decode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Stxr reg,
     const uint8_t *payload,
@@ -434,7 +434,7 @@ size_t ltc6811_1_rdstat_decode_broadcast(
     const size_t byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
         // Check PEC validity
-        if (prv_ltc6811_1_pec_is_correct(payload + off, byte_count)) {
+        if (prv_ltc6811_1_api_pec_is_correct(payload + off, byte_count)) {
             switch (reg) {
                 case LTC6811_1_STAR:
                     out[i].SC = payload[off] | ((uint16_t)payload[off + 1] << 8);
@@ -467,7 +467,7 @@ size_t ltc6811_1_rdstat_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6811_1_wrsctrl_encode_broadcast(
+size_t ltc6811_1_api_wrsctrl_encode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     uint8_t *out) {
@@ -476,7 +476,7 @@ size_t ltc6811_1_wrsctrl_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_WRSCTRL;
-    size_t encoded = prv_ltc6811_1_cmd_encode(cmd, out);
+    size_t encoded = prv_ltc6811_1_api_cmd_encode(cmd, out);
 
     // Encode data with corresponsing PEC
     for (size_t i = 0; i < handler->count; ++i) {
@@ -485,22 +485,22 @@ size_t ltc6811_1_wrsctrl_encode_broadcast(
             const size_t index = ltcIndex * LTC6811_1_REG_SCTRL_COUNT + byte * 2;
             out[encoded + byte] = (payload[index] & 0x0F) | (payload[index + 1] & 0x0F) << 4;
         }
-        encoded += prv_ltc6811_1_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
+        encoded += prv_ltc6811_1_api_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
     }
     return encoded;
 }
 
-size_t ltc6811_1_rdsctrl_encode_broadcast(
+size_t ltc6811_1_api_rdsctrl_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
     enum Ltc68111Command cmd = LTC6811_1_CMD_RDSCTRL;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_rdsctrl_decode_broadcast(
+size_t ltc6811_1_api_rdsctrl_decode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     uint8_t *out) {
@@ -512,7 +512,7 @@ size_t ltc6811_1_rdsctrl_decode_broadcast(
     const size_t byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
         // Check PEC validity
-        if (prv_ltc6811_1_pec_is_correct(payload + off, byte_count)) {
+        if (prv_ltc6811_1_api_pec_is_correct(payload + off, byte_count)) {
             // For each payload byte
             for (size_t byte = 0; byte < LTC6811_1_REG_BYTE_COUNT; ++byte) {
                 size_t index = i * LTC6811_1_REG_SCTRL_COUNT + byte * 2;
@@ -526,27 +526,27 @@ size_t ltc6811_1_rdsctrl_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6811_1_stsctrl_encode_broadcast(
+size_t ltc6811_1_api_stsctrl_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
     enum Ltc68111Command cmd = LTC6811_1_CMD_STSCTRL;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_clrsctrl_encode_broadcast(
+size_t ltc6811_1_api_clrsctrl_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
     enum Ltc68111Command cmd = LTC6811_1_CMD_CLRSCTRL;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_wrpwm_encode_broadcast(
+size_t ltc6811_1_api_wrpwm_encode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     uint8_t *out) {
@@ -555,7 +555,7 @@ size_t ltc6811_1_wrpwm_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_WRPWM;
-    size_t encoded = prv_ltc6811_1_cmd_encode(cmd, out);
+    size_t encoded = prv_ltc6811_1_api_cmd_encode(cmd, out);
 
     // Encode data with corresponsing PEC
     for (size_t i = 0; i < handler->count; ++i) {
@@ -564,22 +564,22 @@ size_t ltc6811_1_wrpwm_encode_broadcast(
             const size_t index = ltcIndex * LTC6811_1_REG_PWM_COUNT + byte * 2;
             out[encoded + byte] = (payload[index] & 0x0F) | (payload[index + 1] & 0x0F) << 4;
         }
-        encoded += prv_ltc6811_1_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
+        encoded += prv_ltc6811_1_api_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
     }
     return encoded;
 }
 
-size_t ltc6811_1_rdpwm_encode_broadcast(
+size_t ltc6811_1_api_rdpwm_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
         return 0U;
     }
     enum Ltc68111Command cmd = LTC6811_1_CMD_RDPWM;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_rdpwm_decode_broadcast(
+size_t ltc6811_1_api_rdpwm_decode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     uint8_t *out) {
@@ -590,7 +590,7 @@ size_t ltc6811_1_rdpwm_decode_broadcast(
     size_t decoded = 0, off = 0;
     const size_t byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
-        if (prv_ltc6811_1_pec_is_correct(payload + off, byte_count)) {
+        if (prv_ltc6811_1_api_pec_is_correct(payload + off, byte_count)) {
             // For each payload byte
             for (size_t byte = 0; byte < LTC6811_1_REG_BYTE_COUNT; ++byte) {
                 size_t index = i * LTC6811_1_PWM_COUNT + byte * 2;
@@ -604,7 +604,7 @@ size_t ltc6811_1_rdpwm_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6811_1_adcv_encode_broadcast(
+size_t ltc6811_1_api_adcv_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
@@ -615,13 +615,13 @@ size_t ltc6811_1_adcv_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADCV;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_dcp(cmd, dcp);
-    cmd = prv_ltc6811_1_cmd_set_ch(cmd, cells);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_dcp(cmd, dcp);
+    cmd = prv_ltc6811_1_api_cmd_set_ch(cmd, cells);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adow_encode_broadcast(
+size_t ltc6811_1_api_adow_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Pup pup,
@@ -633,14 +633,14 @@ size_t ltc6811_1_adow_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADOW;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_pup(cmd, pup);
-    cmd = prv_ltc6811_1_cmd_set_dcp(cmd, dcp);
-    cmd = prv_ltc6811_1_cmd_set_ch(cmd, cells);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_pup(cmd, pup);
+    cmd = prv_ltc6811_1_api_cmd_set_dcp(cmd, dcp);
+    cmd = prv_ltc6811_1_api_cmd_set_ch(cmd, cells);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_cvst_encode_broadcast(
+size_t ltc6811_1_api_cvst_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
@@ -650,12 +650,12 @@ size_t ltc6811_1_cvst_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_CVST;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_st(cmd, test_mode);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_st(cmd, test_mode);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adol_encode_broadcast(
+size_t ltc6811_1_api_adol_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
@@ -665,12 +665,12 @@ size_t ltc6811_1_adol_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADOL;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_dcp(cmd, dcp);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_dcp(cmd, dcp);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adax_encode_broadcast(
+size_t ltc6811_1_api_adax_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chg gpios,
@@ -680,12 +680,12 @@ size_t ltc6811_1_adax_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADAX;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_chg(cmd, gpios);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_chg(cmd, gpios);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adaxd_encode_broadcast(
+size_t ltc6811_1_api_adaxd_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chg gpios,
@@ -695,12 +695,12 @@ size_t ltc6811_1_adaxd_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADAXD;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_chg(cmd, gpios);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_chg(cmd, gpios);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_axst_encode_broadcast(
+size_t ltc6811_1_api_axst_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
@@ -710,12 +710,12 @@ size_t ltc6811_1_axst_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_AXST;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_st(cmd, test_mode);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_st(cmd, test_mode);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adstat_encode_broadcast(
+size_t ltc6811_1_api_adstat_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chst groups,
@@ -725,12 +725,12 @@ size_t ltc6811_1_adstat_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADSTAT;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_chst(cmd, groups);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_chst(cmd, groups);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adstatd_encode_broadcast(
+size_t ltc6811_1_api_adstatd_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Chst groups,
@@ -740,12 +740,12 @@ size_t ltc6811_1_adstatd_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADSTATD;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_chst(cmd, groups);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_chst(cmd, groups);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_statst_encode_broadcast(
+size_t ltc6811_1_api_statst_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111St test_mode,
@@ -755,12 +755,12 @@ size_t ltc6811_1_statst_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_STATST;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_st(cmd, test_mode);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_st(cmd, test_mode);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adcvax_encode_broadcast(
+size_t ltc6811_1_api_adcvax_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
@@ -770,12 +770,12 @@ size_t ltc6811_1_adcvax_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADCVAX;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_dcp(cmd, dcp);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_dcp(cmd, dcp);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_adcvsc_encode_broadcast(
+size_t ltc6811_1_api_adcvsc_encode_broadcast(
     const struct Ltc68111Handler *handler,
     enum Ltc68111Md mode,
     enum Ltc68111Dcp dcp,
@@ -785,12 +785,12 @@ size_t ltc6811_1_adcvsc_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_ADCVSC;
-    cmd = prv_ltc6811_1_cmd_set_md(cmd, mode);
-    cmd = prv_ltc6811_1_cmd_set_dcp(cmd, dcp);
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    cmd = prv_ltc6811_1_api_cmd_set_md(cmd, mode);
+    cmd = prv_ltc6811_1_api_cmd_set_dcp(cmd, dcp);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_clrcell_encode_broadcast(
+size_t ltc6811_1_api_clrcell_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
@@ -798,10 +798,10 @@ size_t ltc6811_1_clrcell_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_CLRCELL;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_clraux_encode_broadcast(
+size_t ltc6811_1_api_clraux_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
@@ -809,10 +809,10 @@ size_t ltc6811_1_clraux_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_CLRAUX;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_clrstat_encode_broadcast(
+size_t ltc6811_1_api_clrstat_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
@@ -820,10 +820,10 @@ size_t ltc6811_1_clrstat_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_CLRSTAT;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_pladc_encode_broadcast(
+size_t ltc6811_1_api_pladc_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
@@ -831,10 +831,10 @@ size_t ltc6811_1_pladc_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_PLADC;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_diagn_encode_broadcast(
+size_t ltc6811_1_api_diagn_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
@@ -842,10 +842,10 @@ size_t ltc6811_1_diagn_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_DIAGN;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_wrcomm_encode_broadcast(
+size_t ltc6811_1_api_wrcomm_encode_broadcast(
     const struct Ltc68111Handler *handler,
     struct Ltc68111Comm *comms,
     uint8_t *out) {
@@ -855,7 +855,7 @@ size_t ltc6811_1_wrcomm_encode_broadcast(
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_WRCOMM;
 
-    size_t encoded = prv_ltc6811_1_cmd_encode(cmd, out);
+    size_t encoded = prv_ltc6811_1_api_cmd_encode(cmd, out);
     for (size_t i = 0; i < handler->count; ++i) {
         struct Ltc68111Comm *comm = &(comms[handler->count - i - 1]);
 
@@ -866,12 +866,12 @@ size_t ltc6811_1_wrcomm_encode_broadcast(
         out[encoded + 4] = (comm->icom2 << 4) | (comm->payload[2] >> 4);
         out[encoded + 5] = ((comm->payload[2] & 0x0F) << 4) | comm->fcom2;
 
-        encoded += prv_ltc6811_1_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
+        encoded += prv_ltc6811_1_api_pec_calc(out + encoded, LTC6811_1_REG_BYTE_COUNT);
     }
     return encoded;
 }
 
-size_t ltc6811_1_rdcomm_encode_broadcast(
+size_t ltc6811_1_api_rdcomm_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
@@ -879,10 +879,10 @@ size_t ltc6811_1_rdcomm_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_RDCOMM;
-    return prv_ltc6811_1_cmd_encode(cmd, out);
+    return prv_ltc6811_1_api_cmd_encode(cmd, out);
 }
 
-size_t ltc6811_1_rdcomm_decode_broadcast(
+size_t ltc6811_1_api_rdcomm_decode_broadcast(
     const struct Ltc68111Handler *handler,
     const uint8_t *payload,
     struct Ltc68111Comm *out) {
@@ -894,7 +894,7 @@ size_t ltc6811_1_rdcomm_decode_broadcast(
     const size_t byte_count = LTC6811_1_REG_BYTE_COUNT + LTC6811_1_PEC_BYTE_COUNT;
     for (size_t i = 0; i < handler->count; ++i) {
         // Check PEC validity
-        if (prv_ltc6811_1_pec_is_correct(payload + off, byte_count)) {
+        if (prv_ltc6811_1_api_pec_is_correct(payload + off, byte_count)) {
             // Decode communication data
             out[i].icom0 = payload[off + 0] >> 4;
             out[i].icom1 = payload[off + 2] >> 4;
@@ -914,7 +914,7 @@ size_t ltc6811_1_rdcomm_decode_broadcast(
     return decoded;
 }
 
-size_t ltc6811_1_stcomm_encode_broadcast(
+size_t ltc6811_1_api_stcomm_encode_broadcast(
     const struct Ltc68111Handler *handler,
     uint8_t *out) {
     if (handler == NULL || out == NULL) {
@@ -922,7 +922,7 @@ size_t ltc6811_1_stcomm_encode_broadcast(
     }
 
     enum Ltc68111Command cmd = LTC6811_1_CMD_STCOMM;
-    size_t encoded = prv_ltc6811_1_cmd_encode(cmd, out);
+    size_t encoded = prv_ltc6811_1_api_cmd_encode(cmd, out);
 
     // Add dummy data
     memset(out + encoded, 0xff, LTC6811_1_STCOMM_CYCLES);
