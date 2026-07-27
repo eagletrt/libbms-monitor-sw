@@ -53,7 +53,7 @@ int main(void) {
     struct Ltc68111Handler handler;
 
     HAL_Init();
-    ltc6811_1_init(&handler, LTC_COUNT);
+    ltc6811_1_api_init(&handler, LTC_COUNT);
 
     /*!
      * The ADOW commands can be used to check for any open wires between the ADCs
@@ -82,7 +82,7 @@ int main(void) {
          * to check for possible errors while encoding the data.
          */
         uint8_t adow_pup[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-        const size_t adow_pup_byte_count = ltc6811_1_adow_encode_broadcast(
+        const size_t adow_pup_byte_count = ltc6811_1_api_adow_encode_broadcast(
             &handler,
             LTC6811_1_MD_7KHZ,
             LTC6811_1_PUP_ACTIVE,
@@ -108,7 +108,7 @@ int main(void) {
      * send the command with the appropriate checks.
      */
     uint8_t poll[LTC6811_1_POLL_BUFFER_SIZE] = { 0 };
-    const size_t poll_byte_size = ltc6811_1_pladc_encode_broadcast(&handler, poll);
+    const size_t poll_byte_size = ltc6811_1_api_pladc_encode_broadcast(&handler, poll);
     if (poll_byte_size == LTC6811_1_POLL_BUFFER_SIZE) {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_SPI_Transmit(&hspi1, poll, poll_byte_size, 10U);
@@ -129,7 +129,7 @@ int main(void) {
      * status may cause false positives.
      */
     const uint8_t pladc_response = 0xff;
-    if (ltc6811_1_pladc_is_completed(pladc_response)) {
+    if (ltc6811_1_api_pladc_is_completed(pladc_response)) {
         uart_printf("[INFO]: Conversion has completed\n");
     } else {
         uart_printf("[WARNING]: Conversion has not completed yet\n");
@@ -152,7 +152,7 @@ int main(void) {
          * with the register as additional parameter.
          */
         uint8_t read[LTC6811_1_READ_BUFFER_SIZE] = { 0 };
-        const size_t read_byte_count = ltc6811_1_rdcv_encode_broadcast(
+        const size_t read_byte_count = ltc6811_1_api_rdcv_encode_broadcast(
             &handler,
             reg,
             read);
@@ -175,7 +175,7 @@ int main(void) {
          */
         uint8_t payload[LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)] = { 1, 2, 3, 4, 5 };
         uint16_t voltages[LTC6811_1_REG_CELL_COUNT * LTC_COUNT] = { 0 };
-        const size_t byte_count = ltc6811_1_rdcv_decode_broadcast(&handler, payload, voltages);
+        const size_t byte_count = ltc6811_1_api_rdcv_decode_broadcast(&handler, payload, voltages);
         if (byte_count == LTC6811_1_DATA_BUFFER_SIZE(LTC_COUNT)) {
             uart_printf("[SUCCES]: Register n°%u correctly decoded\n", reg);
         } else {
